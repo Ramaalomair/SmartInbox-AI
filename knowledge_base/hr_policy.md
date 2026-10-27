@@ -1,0 +1,2 @@
+# Recruitment Policy (POL-HR-01)
+Applicants should use the official application channel stated in the current position listing. NovaTech demo has no verified live openings and no recruitment portal link. Acknowledge interest and ask applicant to consult current official openings. Do not promise a job, interview, hiring timeline, visa sponsorship or referral. Routine careers inquiries are LOW priority.
