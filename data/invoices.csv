@@ -1,0 +1,4 @@
+invoice_id,authorized_contacts,payment_status,amount_sar
+INV-301,sender3@example.com;sender27@example.com,paid,1200
+INV-302,sender8@example.com,pending,750
+INV-303,sender12@example.com,unverified,900

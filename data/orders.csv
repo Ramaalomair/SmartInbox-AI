@@ -1,0 +1,11 @@
+order_id,customer_email,status,delivered_days_ago,refund_status,confirmed_delivery_date
+ORD-1001,sender1@example.com,in_transit,,not_requested,
+ORD-1002,sender5@example.com,delivered,5,pending,2026-10-23
+ORD-1003,sender9@example.com,delivered,23,not_requested,2026-10-05
+ORD-1004,sender14@example.com,delivered,3,completed,2026-10-25
+ORD-1005,sender26@example.com,processing,,not_requested,
+ORD-1006,sender13@example.com,in_transit,,not_requested,
+ORD-1007,sender18@example.com,delivered,9,pending,2026-10-19
+ORD-1008,sender30@example.com,delivered,2,not_requested,2026-10-26
+ORD-1009,unused9@example.com,delivered,16,completed,2026-10-12
+ORD-1010,sender22@example.com,cancelled,,pending,

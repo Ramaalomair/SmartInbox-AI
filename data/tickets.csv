@@ -1,0 +1,5 @@
+ticket_id,customer_email,status,category,notes,resolution
+T-100,sender11@example.com,open,login,User reports repeated login failures; investigation awaiting additional verification.,
+T-101,sender20@example.com,investigating,outage,Multiple users unable to reach the web app; engineering investigating.,
+T-102,sender28@example.com,resolved,access,Account login permissions failed after a routine account update.,Access restored after account ownership verification; confirmed by support.
+T-103,unlinked@example.com,open,payment_portal,Payment portal reports an intermittent error.,
