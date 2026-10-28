@@ -116,7 +116,7 @@ class AgentConfig(StrictModel):
     max_steps: int = Field(default=6, ge=1)
     retrieval_top_k: int = Field(default=3, ge=1)
     max_input_tokens: int = Field(default=12000, ge=1)
-    max_output_tokens: int = Field(default=2000, ge=1)
+    max_output_tokens: int = Field(default=6000, ge=1)
     max_estimated_cost_usd: float = Field(default=0.10, gt=0)
 
 
