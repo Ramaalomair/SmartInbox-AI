@@ -1,9 +1,33 @@
+# Secrets and local environment files
 .env
 .env.*
 !.env.example
+
+# Python virtual environments
+.venv/
+venv/
+
+# Python caches and tooling
 __pycache__/
 *.py[cod]
-storage/
-.venv/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local application secrets
+.streamlit/secrets.toml
+
+# Local databases and generated artifacts
+*.db
+*.sqlite
+*.sqlite3
+logs/
+outputs/
+
+# IDE / OS
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
