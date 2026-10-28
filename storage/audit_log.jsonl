@@ -1,0 +1,2 @@
+{"time": "2026-10-28T20:59:02.375641+00:00", "event": "write_saved", "action_id": "2879bd1e14e2cde03e3ea5365e64ed6b87436e55d37bf4bb1d7cfb81c825b61a", "email_id": "E001", "reason": "approved"}
+{"time": "2026-10-28T21:01:25.226043+00:00", "event": "action_rejected", "action_id": "6b75bfea4f75e39014ed2acd8fb0b92cdae15ee036b78e93001cb3826ad880a6", "email_id": "E003", "reason": "human_rejected"}

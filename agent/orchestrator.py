@@ -361,10 +361,7 @@ async def process_email(
 
     except Exception as exc:
         # Avoid exposing internal exception details to callers.
-        print(
-            f"Orchestrator error: {type(exc).__name__}"
-        )
-
+        print(f"Orchestrator error: {type(exc).__name__}: {exc}")
         status = "error"
         draft_subject = None
         draft_body = None
