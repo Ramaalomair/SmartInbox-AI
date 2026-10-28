@@ -2,7 +2,7 @@ import json
 
 from pydantic import BaseModel, ValidationError, field_validator
 
-from agent.llm import client, MODEL, record_usage
+from agent.llm import client, MODEL, record_usage, record_request
 from agent.schemas import Department, Priority, Intent, EmailInput
 
 
@@ -35,6 +35,8 @@ def clean_json_response(content: str) -> str:
 
 def classify_email(email: EmailInput) -> EmailClassification:
     """Classify an email using the shared contract labels."""
+    record_request()
+
     response = client.chat.completions.create(
         model=MODEL,
         messages=[

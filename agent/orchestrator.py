@@ -52,7 +52,10 @@ async def process_email(
     error_info = None
 
     # Isolate usage counters for this email-processing request.
-    usage_token = start_usage_tracking()
+    # Reuse an existing evaluation tracking context when one is active.
+    # Otherwise, start a fresh context for standalone calls.
+    owns_usage_tracking = get_usage()["request_count"] is None
+    usage_token = start_usage_tracking() if owns_usage_tracking else None
 
     def current_budget() -> BudgetUsage:
         """Build budget information from the current LLM context."""
@@ -376,4 +379,5 @@ async def process_email(
 
     finally:
         # Clean up usage tracking even when processing fails.
-        stop_usage_tracking(usage_token)
+        if owns_usage_tracking:
+            stop_usage_tracking(usage_token)

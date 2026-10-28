@@ -1,7 +1,6 @@
-
 import json
 
-from agent.llm import client, MODEL
+from agent.llm import client, MODEL, record_request, record_usage
 from agent.retrieval import KnowledgeRetriever
 from agent.schemas import AgentConfig
 
@@ -132,6 +131,7 @@ def run_agent(
         # Limit the output tokens of this call.
         call_max_tokens = min(1000, remaining_output)
 
+        record_request()
         response = client.chat.completions.create(
             model=MODEL,
             messages=messages,
@@ -139,6 +139,7 @@ def run_agent(
             tool_choice="auto",
             max_tokens=call_max_tokens,
         )
+        record_usage(response)
 
         # Track token and cost usage across all LLM calls.
         if response.usage:

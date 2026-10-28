@@ -1,4 +1,3 @@
-
 import os
 from contextvars import ContextVar
 
@@ -30,8 +29,8 @@ _usage_context = ContextVar("llm_usage_context", default=None)
 
 def start_usage_tracking():
     """Start a new usage-tracking context for one email."""
-
     return _usage_context.set({
+        "request_count": 0,
         "input_tokens": 0,
         "output_tokens": 0,
         "estimated_cost_usd": 0.0,
@@ -42,17 +41,18 @@ def start_usage_tracking():
 
 def get_usage() -> dict:
     """Return accumulated usage for the current context."""
-
     usage = _usage_context.get()
 
     if usage is None:
         return {
+            "request_count": None,
             "input_tokens": None,
             "output_tokens": None,
             "estimated_cost_usd": None,
         }
 
     return {
+        "request_count": usage["request_count"],
         "input_tokens": (
             usage["input_tokens"]
             if usage["usage_available"]
@@ -73,13 +73,18 @@ def get_usage() -> dict:
 
 def stop_usage_tracking(token):
     """Restore the previous usage-tracking context."""
-
     _usage_context.reset(token)
+
+
+def record_request():
+    """Count one application-level LLM API call attempt."""
+    context = _usage_context.get()
+    if context is not None:
+        context["request_count"] += 1
 
 
 def record_usage(response):
     """Accumulate token counts and provider-reported cost."""
-
     context = _usage_context.get()
 
     if context is None or response.usage is None:
@@ -100,6 +105,7 @@ def record_usage(response):
 
 def ask_llm(prompt: str) -> str:
     """Send a prompt to OpenRouter and return a complete response."""
+    record_request()
 
     response = client.chat.completions.create(
         model=MODEL,
@@ -151,9 +157,7 @@ def ask_llm(prompt: str) -> str:
         print("Finish reason:", finish_reason)
         print("Usage:", response.usage)
 
-        raise ValueError(
-            "The model returned an empty answer."
-        )
+        raise ValueError("The model returned an empty answer.")
 
     return answer.strip()
 
