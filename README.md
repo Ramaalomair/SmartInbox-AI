@@ -72,7 +72,7 @@ Knowledge retrieval   Record lookups     MCP save_draft_mcp
 | Tool / component | Read / write | Over MCP? | Approval? | Trifecta leg (private / untrusted / egress) |
 |---|---|---|---|---|
 | Knowledge retrieval (`agent/retrieval.py`, `agent/hybrid_retrieval.py`) | Read | Not established from current evidence | No write approval | Untrusted retrieved content |
-| Record lookup components (`agent/integrated_tools.py`, `agent/mock_tools.py`, `agent/tool_execution.py`) | Read | Verify individual lookup transport in code | Access control required; no write approval | Private synthetic records |
+| Record lookup components (`agent/integrated_tools.py`, `agent/tool_execution.py`) | Read | Verify individual lookup transport in code | Access control required; no write approval | Private synthetic records |
 | Classification and routing (`agent/classification.py`, `agent/tool_selection.py`) | Decision / read | No MCP requirement established | No | Untrusted email input |
 | `save_draft_mcp` (`mcp_server/server.py`) | Write, local | **Yes** | **Yes**; approval token verified by the service | Limited local write / egress-like action |
 | Audit logging (`mcp_server/service.py`) | Write, local | Service-side | System-controlled | Audit trail |
