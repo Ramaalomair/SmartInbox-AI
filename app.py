@@ -352,9 +352,8 @@ st.markdown(
     :root {
         --si-accent: #4f7cff;
         --si-accent-soft: rgba(79, 124, 255, 0.12);
-        --si-border: rgba(140, 150, 170, 0.22);
-        --si-border-strong: rgba(140, 150, 170, 0.34);
-        --si-surface: rgba(140, 150, 170, 0.06);
+        --si-border: rgba(140, 150, 170, 0.20);
+        --si-surface: rgba(140, 150, 170, 0.05);
         --si-surface-2: rgba(140, 150, 170, 0.10);
         --si-success: #22a06b;
         --si-warning: #c88a12;
@@ -363,9 +362,8 @@ st.markdown(
         --si-radius: 10px;
     }
 
-    html, body, [class*="css"], .stApp,
-    .stMarkdown, .stTextInput, .stTextArea, .stButton,
-    [data-testid="stMetric"] {
+    html, body, .stApp, .stMarkdown, .stTextInput,
+    .stTextArea, .stButton {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont,
             'Segoe UI', Roboto, 'Noto Sans Arabic', sans-serif;
     }
@@ -375,19 +373,20 @@ st.markdown(
             Menlo, monospace !important;
     }
 
-    #MainMenu, footer, [data-testid="stDecoration"] {
-        visibility: hidden;
+    /* Keep the Streamlit header out of the way without hiding controls. */
+    [data-testid="stHeader"] {
+        background: transparent;
+    }
+
+    #MainMenu, footer, [data-testid="stDecoration"],
+    .stAppDeployButton, [data-testid="stAppDeployButton"] {
+        display: none !important;
     }
 
     .block-container {
-        padding-top: 2rem;
-        padding-bottom: 3rem;
-        max-width: 1440px;
-    }
-
-    h1, h2, h3, h4 {
-        letter-spacing: -0.015em;
-        font-weight: 600;
+        padding-top: 3.25rem;
+        padding-bottom: 2rem;
+        max-width: 1400px;
     }
 
     /* ---------- Sidebar ---------- */
@@ -396,20 +395,16 @@ st.markdown(
         border-right: 1px solid var(--si-border);
     }
 
-    [data-testid="stSidebar"] .block-container {
-        padding-top: 1.5rem;
-    }
-
     .si-brand {
         display: flex;
         align-items: center;
         gap: 0.7rem;
-        margin-bottom: 0.25rem;
+        margin-bottom: 1.25rem;
     }
 
     .si-brand-mark {
-        width: 34px;
-        height: 34px;
+        width: 32px;
+        height: 32px;
         border-radius: 8px;
         background: var(--si-accent);
         color: #ffffff;
@@ -417,41 +412,37 @@ st.markdown(
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 0.85rem;
-        letter-spacing: 0.02em;
+        font-size: 0.8rem;
         flex-shrink: 0;
     }
 
     .si-brand-name {
         font-weight: 650;
-        font-size: 1.05rem;
+        font-size: 1rem;
         line-height: 1.2;
     }
 
     .si-brand-sub {
-        font-size: 0.75rem;
-        opacity: 0.6;
+        font-size: 0.74rem;
+        opacity: 0.55;
     }
 
-    .si-section-label {
+    .si-label {
         font-size: 0.7rem;
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         opacity: 0.55;
-        margin: 0.4rem 0 0.5rem;
+        margin: 0.25rem 0 0.5rem;
     }
 
     .si-status-row {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.82rem;
-        padding: 0.55rem 0.7rem;
-        border: 1px solid var(--si-border);
-        border-radius: 8px;
-        background: var(--si-surface);
-        margin-top: 0.5rem;
+        font-size: 0.8rem;
+        opacity: 0.8;
+        margin: 0.25rem 0 0.75rem;
     }
 
     .si-dot {
@@ -459,12 +450,14 @@ st.markdown(
         height: 7px;
         border-radius: 50%;
         flex-shrink: 0;
+        display: inline-block;
     }
 
     .si-footnote {
         font-size: 0.74rem;
-        opacity: 0.55;
+        opacity: 0.5;
         line-height: 1.5;
+        margin-top: 0.75rem;
     }
 
     /* ---------- Page header ---------- */
@@ -472,358 +465,84 @@ st.markdown(
     .si-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-end;
+        align-items: center;
         gap: 1rem;
-        flex-wrap: wrap;
-        padding-bottom: 1.25rem;
-        margin-bottom: 1.5rem;
+        padding-bottom: 0.9rem;
+        margin-bottom: 1rem;
         border-bottom: 1px solid var(--si-border);
-    }
-
-    .si-breadcrumb {
-        font-size: 0.75rem;
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        opacity: 0.55;
-        margin-bottom: 0.35rem;
     }
 
     .si-title {
         font-weight: 650;
-        font-size: 1.75rem;
+        font-size: 1.35rem;
+        letter-spacing: -0.015em;
         line-height: 1.2;
-        letter-spacing: -0.02em;
-        margin: 0;
     }
 
     .si-subtitle {
-        font-size: 0.9rem;
-        opacity: 0.65;
-        margin-top: 0.35rem;
-    }
-
-    .si-env {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        padding: 0.35rem 0.7rem;
-        border: 1px solid var(--si-border);
-        border-radius: 6px;
-        background: var(--si-surface);
-        white-space: nowrap;
-    }
-
-    /* ---------- Section headings ---------- */
-
-    .si-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 0.25rem 0 0.75rem;
-    }
-
-    .si-section-title {
-        font-size: 1rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-    }
-
-    .si-section-hint {
-        font-size: 0.78rem;
+        font-size: 0.82rem;
         opacity: 0.55;
-    }
-
-    /* ---------- Cards ---------- */
-
-    .si-card {
-        background: var(--si-surface);
-        border: 1px solid var(--si-border);
-        border-radius: var(--si-radius);
-        padding: 1.25rem 1.35rem;
-        margin-bottom: 1rem;
-    }
-
-    .si-email-subject {
-        font-size: 1.15rem;
-        font-weight: 600;
-        line-height: 1.4;
-        margin-bottom: 0.9rem;
-        overflow-wrap: anywhere;
-    }
-
-    .si-meta-grid {
-        display: grid;
-        grid-template-columns: 88px 1fr;
-        row-gap: 0.35rem;
-        font-size: 0.83rem;
-    }
-
-    .si-meta-key {
-        opacity: 0.55;
-    }
-
-    .si-meta-val {
-        overflow-wrap: anywhere;
-        font-weight: 500;
-    }
-
-    .si-message {
-        white-space: pre-wrap;
-        overflow-wrap: anywhere;
-        unicode-bidi: plaintext;
-        text-align: start;
-        line-height: 1.7;
-        font-size: 0.93rem;
-    }
-
-    .si-divider {
-        border-top: 1px solid var(--si-border);
-        margin: 1rem 0;
-    }
-
-    /* ---------- Analysis summary ---------- */
-
-    .si-summary {
-        display: flex;
-        justify-content: space-between;
-        gap: 1rem;
-        align-items: center;
-        padding: 0.85rem 1rem;
-        border: 1px solid var(--si-border);
-        border-radius: var(--si-radius);
-        background: var(--si-surface);
-        margin-bottom: 1rem;
-    }
-
-    .si-summary-title {
-        font-weight: 600;
-        font-size: 0.92rem;
-    }
-
-    .si-note {
-        font-size: 0.78rem;
-        opacity: 0.6;
         margin-top: 0.15rem;
     }
 
-    .si-badge {
+    .si-mode {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        border-radius: 6px;
-        padding: 0.28rem 0.6rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
+        gap: 0.45rem;
+        font-size: 0.74rem;
+        font-weight: 500;
+        padding: 0.3rem 0.65rem;
+        border: 1px solid var(--si-border);
+        border-radius: 999px;
         white-space: nowrap;
-        border: 1px solid transparent;
+        cursor: default;
     }
 
-    .si-badge::before {
-        content: "";
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: currentColor;
-    }
-
-    .si-tone-success {
-        color: var(--si-success);
-        background: rgba(34, 160, 107, 0.12);
-        border-color: rgba(34, 160, 107, 0.28);
-    }
-
-    .si-tone-warning {
-        color: var(--si-warning);
-        background: rgba(200, 138, 18, 0.12);
-        border-color: rgba(200, 138, 18, 0.28);
-    }
-
-    .si-tone-danger {
-        color: var(--si-danger);
-        background: rgba(217, 83, 79, 0.12);
-        border-color: rgba(217, 83, 79, 0.28);
-    }
-
-    .si-tone-neutral {
-        color: var(--si-neutral);
-        background: rgba(122, 134, 153, 0.12);
-        border-color: rgba(122, 134, 153, 0.28);
-    }
-
-    .si-tone-accent {
-        color: var(--si-accent);
-        background: var(--si-accent-soft);
-        border-color: rgba(79, 124, 255, 0.28);
-    }
-
-    /* ---------- Classification grid ---------- */
-
-    .si-kv-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        border: 1px solid var(--si-border);
-        border-radius: var(--si-radius);
-        overflow: hidden;
-        margin-bottom: 1rem;
-    }
-
-    .si-kv {
-        padding: 0.8rem 1rem;
-        border-bottom: 1px solid var(--si-border);
-    }
-
-    .si-kv:nth-child(odd) {
-        border-right: 1px solid var(--si-border);
-    }
-
-    .si-kv:nth-last-child(-n+2) {
-        border-bottom: none;
-    }
-
-    .si-kv-label {
-        font-size: 0.7rem;
-        font-weight: 600;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
-        opacity: 0.55;
-        margin-bottom: 0.25rem;
-    }
-
-    .si-kv-value {
-        font-size: 0.95rem;
-        font-weight: 600;
-        overflow-wrap: anywhere;
-    }
-
-    /* ---------- Evidence ---------- */
-
-    .si-evidence {
-        border: 1px solid var(--si-border);
-        border-left: 3px solid var(--si-accent);
-        border-radius: 8px;
-        padding: 0.8rem 1rem;
-        margin-bottom: 0.65rem;
-        background: var(--si-surface);
-    }
-
-    .si-evidence-head {
+    .si-pane-title {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 0.4rem;
-    }
-
-    .si-evidence-source {
-        font-size: 0.8rem;
+        align-items: baseline;
+        font-size: 0.95rem;
         font-weight: 600;
-        overflow-wrap: anywhere;
+        margin-bottom: 0.6rem;
     }
 
-    .si-evidence-text {
-        font-size: 0.86rem;
-        line-height: 1.6;
-        opacity: 0.8;
-        overflow-wrap: anywhere;
-        unicode-bidi: plaintext;
+    .si-pane-hint {
+        font-size: 0.75rem;
+        font-weight: 400;
+        opacity: 0.5;
     }
 
-    .si-subhead {
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
-        opacity: 0.55;
-        margin: 1.1rem 0 0.5rem;
-    }
-
-    /* ---------- Streamlit widgets ---------- */
-
-    .stButton > button {
-        border-radius: 8px;
-        min-height: 2.6rem;
-        font-weight: 600;
-        font-size: 0.88rem;
-        letter-spacing: 0.005em;
-        transition: border-color 0.15s ease, background 0.15s ease;
-    }
-
-    [data-testid="stMetric"] {
-        border: 1px solid var(--si-border);
-        border-radius: var(--si-radius);
-        padding: 0.9rem 1.1rem;
-        background: var(--si-surface);
-    }
-
-    [data-testid="stMetricLabel"] p {
-        font-size: 0.72rem !important;
-        font-weight: 600;
-        letter-spacing: 0.07em;
-        text-transform: uppercase;
-        opacity: 0.6;
-    }
-
-    [data-testid="stMetricValue"] {
-        font-size: 1.7rem;
-        font-weight: 650;
-    }
-
-    [data-testid="stExpander"] {
-        border-radius: var(--si-radius);
-        overflow: hidden;
-    }
-
-    [data-testid="stExpander"] summary p {
-        font-weight: 600;
-        font-size: 0.88rem;
-    }
-
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 1.25rem;
-        border-bottom: 1px solid var(--si-border);
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        padding: 0.6rem 0.1rem;
-        font-weight: 500;
-    }
-
-    .stTabs [data-baseweb="tab"] p {
-        font-size: 0.88rem;
-    }
-
-    .stTextInput input, .stTextArea textarea {
-        border-radius: 8px;
-        font-size: 0.92rem;
-        unicode-bidi: plaintext;
-    }
-
-    [data-testid="stAlert"] {
-        border-radius: var(--si-radius);
-    }
-
-    /* ---------- Shared inbox ---------- */
+    /* ---------- Inbox list ---------- */
 
     .st-key-si_inbox_list {
         border: 1px solid var(--si-border);
         border-radius: var(--si-radius);
-        padding: 0.35rem !important;
-        gap: 0.25rem !important;
+        padding: 0.3rem !important;
+        gap: 0.2rem !important;
     }
 
     [class*="st-key-si_row_"] {
         position: relative;
         gap: 0 !important;
+        flex-shrink: 0;
+    }
+
+    /* Streamlit gives markdown blocks a negative bottom margin, which
+       makes each row shorter than its content and lets highlights
+       overlap the next email. Reset it inside inbox rows only. */
+    [class*="st-key-si_row_"] [data-testid="stElementContainer"],
+    [class*="st-key-si_row_"] .stMarkdown,
+    [class*="st-key-si_row_"] [data-testid="stMarkdownContainer"] {
+        margin: 0 !important;
+        padding: 0 !important;
     }
 
     .si-row {
         display: flex;
         align-items: flex-start;
-        gap: 0.75rem;
-        padding: 0.65rem 0.8rem;
+        gap: 0.65rem;
+        padding: 0.6rem 0.7rem;
         border: 1px solid transparent;
         border-radius: 8px;
         transition: background 0.12s ease, border-color 0.12s ease;
@@ -831,21 +550,15 @@ st.markdown(
 
     [class*="st-key-si_row_"]:hover .si-row {
         background: var(--si-surface-2);
-        border-color: var(--si-border);
     }
 
     .si-row.is-selected {
         background: var(--si-accent-soft);
-        border-color: rgba(79, 124, 255, 0.35);
-        box-shadow: inset 3px 0 0 var(--si-accent);
+        border-color: rgba(79, 124, 255, 0.30);
     }
 
-    .si-row-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        margin-top: 0.42rem;
-        flex-shrink: 0;
+    .si-row .si-dot {
+        margin-top: 0.4rem;
     }
 
     .si-row-main {
@@ -853,32 +566,34 @@ st.markdown(
         min-width: 0;
     }
 
-    .si-row-top {
+    .si-row-line {
         display: flex;
         align-items: baseline;
-        gap: 0.6rem;
-        font-size: 0.78rem;
-    }
-
-    .si-row-sender {
-        opacity: 0.7;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        gap: 0.5rem;
         min-width: 0;
     }
 
-    .si-row-id {
-        margin-left: auto;
-        font-size: 0.72rem;
-        opacity: 0.45;
+    .si-row-sender {
+        flex: 1;
+        min-width: 0;
+        font-size: 0.76rem;
+        opacity: 0.65;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .si-row-status {
+        font-size: 0.7rem;
+        font-weight: 500;
+        opacity: 0.6;
         flex-shrink: 0;
     }
 
     .si-row-subject {
-        font-size: 0.9rem;
+        font-size: 0.87rem;
         font-weight: 500;
-        margin: 0.12rem 0 0.1rem;
+        margin: 0.1rem 0;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -889,37 +604,22 @@ st.markdown(
     }
 
     .si-row-preview {
-        font-size: 0.8rem;
-        opacity: 0.55;
+        flex: 1;
+        min-width: 0;
+        font-size: 0.78rem;
+        opacity: 0.5;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .si-row-side {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.3rem;
-        flex-shrink: 0;
-        min-width: 78px;
-    }
-
-    .si-row-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        font-size: 0.72rem;
-        font-weight: 600;
-        opacity: 0.8;
-    }
-
     .si-row-pri {
-        font-size: 0.7rem;
+        font-size: 0.66rem;
         font-weight: 600;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.05em;
         text-transform: uppercase;
         opacity: 0.55;
+        flex-shrink: 0;
     }
 
     .si-row-pri.is-high {
@@ -927,7 +627,7 @@ st.markdown(
         opacity: 0.9;
     }
 
-    /* Invisible full-row button that makes each item clickable. */
+    /* Invisible full-row button that makes each inbox item clickable. */
     [class*="st-key-si_open_"] {
         position: absolute !important;
         inset: 0;
@@ -958,36 +658,235 @@ st.markdown(
     }
 
     .si-empty {
-        font-size: 0.85rem;
-        opacity: 0.55;
+        font-size: 0.82rem;
+        opacity: 0.5;
         text-align: center;
-        padding: 2rem 0;
+        padding: 2rem 0.5rem;
     }
 
-    @media (max-width: 900px) {
-        .si-row-side {
-            min-width: 0;
-        }
+    /* ---------- Selected email ---------- */
 
-        .si-row-preview {
-            display: none;
-        }
+    .si-mail {
+        border: 1px solid var(--si-border);
+        border-radius: var(--si-radius);
+        background: var(--si-surface);
+        padding: 1rem 1.15rem;
+        margin-bottom: 0.75rem;
     }
 
-    @media (max-width: 900px) {
-        .si-title {
-            font-size: 1.4rem;
+    .si-mail-subject {
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
+    .si-mail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem 0.9rem;
+        font-size: 0.78rem;
+        margin: 0.35rem 0 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--si-border);
+    }
+
+    .si-mail-meta span {
+        opacity: 0.6;
+    }
+
+    .si-mail-meta b {
+        font-weight: 500;
+        opacity: 0.9;
+        overflow-wrap: anywhere;
+    }
+
+    .si-mail-body {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        unicode-bidi: plaintext;
+        text-align: start;
+        line-height: 1.65;
+        font-size: 0.9rem;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    /* ---------- AI analysis ---------- */
+
+    .si-section {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.55;
+        margin: 1rem 0 0.45rem;
+    }
+
+    .si-analysis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        border: 1px solid var(--si-border);
+        border-radius: var(--si-radius);
+        overflow: hidden;
+    }
+
+    .si-cell {
+        padding: 0.65rem 0.85rem;
+        border-right: 1px solid var(--si-border);
+        min-width: 0;
+    }
+
+    .si-cell:last-child {
+        border-right: none;
+    }
+
+    .si-cell-label {
+        font-size: 0.68rem;
+        opacity: 0.5;
+        margin-bottom: 0.2rem;
+    }
+
+    .si-cell-value {
+        font-size: 0.86rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .si-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        padding: 0.12rem 0.55rem;
+        font-size: 0.74rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .si-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .si-tone-success { color: var(--si-success); background: rgba(34, 160, 107, 0.12); }
+    .si-tone-warning { color: var(--si-warning); background: rgba(200, 138, 18, 0.12); }
+    .si-tone-danger  { color: var(--si-danger);  background: rgba(217, 83, 79, 0.12); }
+    .si-tone-neutral { color: var(--si-neutral); background: rgba(122, 134, 153, 0.14); }
+
+    .si-placeholder {
+        border: 1px dashed var(--si-border);
+        border-radius: var(--si-radius);
+        padding: 1.1rem;
+        font-size: 0.84rem;
+        opacity: 0.6;
+        text-align: center;
+        margin-top: 0.75rem;
+    }
+
+    .si-hint {
+        font-size: 0.76rem;
+        opacity: 0.5;
+        margin: 0.35rem 0 0.5rem;
+    }
+
+    /* ---------- Evidence ---------- */
+
+    .si-evidence {
+        border-left: 2px solid var(--si-accent);
+        padding: 0.15rem 0 0.15rem 0.75rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .si-evidence-source {
+        font-size: 0.76rem;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .si-evidence-score {
+        font-weight: 400;
+        opacity: 0.55;
+        margin-left: 0.4rem;
+    }
+
+    .si-evidence-text {
+        font-size: 0.82rem;
+        line-height: 1.55;
+        opacity: 0.75;
+        overflow-wrap: anywhere;
+        unicode-bidi: plaintext;
+        margin-top: 0.15rem;
+    }
+
+    /* ---------- Streamlit widgets ---------- */
+
+    .stButton > button {
+        border-radius: 8px;
+        min-height: 2.5rem;
+        font-weight: 600;
+        font-size: 0.87rem;
+    }
+
+    /* Green primary actions instead of Streamlit's default red. */
+    .stButton button[kind="primary"],
+    [data-testid="stBaseButton-primary"] {
+        background: #1f9d63 !important;
+        border-color: #1f9d63 !important;
+        color: #ffffff !important;
+    }
+
+    .stButton button[kind="primary"]:hover,
+    [data-testid="stBaseButton-primary"]:hover {
+        background: #23b06f !important;
+        border-color: #23b06f !important;
+    }
+
+    .stButton button[kind="primary"]:active,
+    [data-testid="stBaseButton-primary"]:active {
+        background: #1a8754 !important;
+        border-color: #1a8754 !important;
+    }
+
+    .stButton button[kind="primary"]:disabled,
+    [data-testid="stBaseButton-primary"]:disabled {
+        background: rgba(31, 157, 99, 0.25) !important;
+        border-color: transparent !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .stTextInput input, .stTextArea textarea {
+        border-radius: 8px;
+        font-size: 0.9rem;
+        unicode-bidi: plaintext;
+    }
+
+    [data-testid="stExpander"] {
+        border-radius: var(--si-radius);
+    }
+
+    [data-testid="stExpander"] summary p {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    [data-testid="stAlert"] {
+        border-radius: var(--si-radius);
+    }
+
+    @media (max-width: 1100px) {
+        .si-analysis {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .si-kv-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .si-kv:nth-child(odd) {
+        .si-cell:nth-child(2) {
             border-right: none;
         }
 
-        .si-kv:nth-last-child(2) {
+        .si-cell:nth-child(-n+2) {
             border-bottom: 1px solid var(--si-border);
         }
     }
@@ -1018,23 +917,6 @@ def label(value: str | None) -> str:
     )
 
 
-def status_tone(value: str | None) -> str:
-    """Map a status value to a badge color tone (display only)."""
-
-    key = (value or "").lower().replace(" ", "_")
-
-    return {
-        "draft_ready": "success",
-        "approved": "success",
-        "saved": "success",
-        "needs_information": "warning",
-        "rejected": "warning",
-        "manual_review": "danger",
-        "error": "danger",
-        "failed": "danger",
-    }.get(key, "neutral")
-
-
 def badge(text: str, tone: str = "neutral") -> str:
     """Render a small status badge."""
     return (
@@ -1043,25 +925,25 @@ def badge(text: str, tone: str = "neutral") -> str:
     )
 
 
-def section(title: str, hint: str = "") -> None:
-    """Render a section heading with an optional hint."""
-
-    hint_html = (
-        f'<span class="si-section-hint">{safe(hint)}</span>'
-        if hint
-        else ""
-    )
-
-    st.markdown(
-        f'<div class="si-section">'
-        f'<span class="si-section-title">{safe(title)}</span>'
-        f"{hint_html}"
-        f"</div>",
-        unsafe_allow_html=True,
-    )
+def status_tone(value: str | None) -> str:
+    """Map an agent status to a badge color tone (display only)."""
+    return {
+        "draft_ready": "success",
+        "needs_information": "warning",
+        "manual_review": "danger",
+    }.get((value or "").lower(), "neutral")
 
 
-INBOX_STATUSES = ["All", "New", "Analyzed", "Approved", "Rejected"]
+def priority_tone(value: str | None) -> str:
+    """Map a priority to a badge color tone (display only)."""
+    return {
+        "urgent": "danger",
+        "high": "danger",
+        "medium": "warning",
+    }.get((value or "").lower(), "neutral")
+
+
+INBOX_FILTERS = ["All", "New", "Analyzed", "Approved", "Rejected"]
 
 INBOX_STATUS_COLOR = {
     "New": "var(--si-accent)",
@@ -1096,7 +978,7 @@ def inbox_priority(item: EmailInput) -> str | None:
     return entry[0].priority if entry else None
 
 
-def preview_text(body: str, limit: int = 120) -> str:
+def preview_text(body: str, limit: int = 110) -> str:
     """Collapse whitespace and shorten the body for list previews."""
 
     text = " ".join((body or "").split())
@@ -1116,6 +998,7 @@ def select_email(email_id: str) -> None:
 st.session_state.setdefault("results", {})
 st.session_state.setdefault("decisions", {})
 st.session_state.setdefault("force_mock", False)
+st.session_state.setdefault("dev_mode", False)
 
 emails = load_emails()
 
@@ -1131,9 +1014,11 @@ email = next(
     if item.email_id == st.session_state.selected_email_id
 )
 
+approval_enabled = bool(os.environ.get("APPROVAL_SECRET"))
+
 
 # ============================================================
-# Sidebar
+# Sidebar: settings only
 # ============================================================
 
 with st.sidebar:
@@ -1149,33 +1034,32 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
 
-    st.divider()
-
     st.markdown(
-        '<div class="si-section-label">Configuration</div>',
+        '<div class="si-label">Settings</div>',
         unsafe_allow_html=True,
     )
 
     if real_process_email is None:
-        st.warning(
-            "Real agent unavailable. Mock mode is active."
+        st.caption(
+            "Live agent unavailable. Running in mock mode."
         )
     else:
         st.toggle(
             "Use mock agent",
             key="force_mock",
             help=(
-                "Mock mode uses evaluation labels. "
+                "Mock mode uses evaluation labels for classification. "
                 "Do not use its predictions for model evaluation."
             ),
         )
 
-    if not os.environ.get("APPROVAL_SECRET"):
-        st.error(
-            "APPROVAL_SECRET is missing. "
-            "Draft approvals are disabled."
-        )
-    else:
+    st.toggle(
+        "Developer mode",
+        key="dev_mode",
+        help="Show agent trace, budget usage, and audit details.",
+    )
+
+    if approval_enabled:
         st.markdown(
             '<div class="si-status-row">'
             '<span class="si-dot" '
@@ -1184,8 +1068,11 @@ with st.sidebar:
             '</div>',
             unsafe_allow_html=True,
         )
-
-    st.divider()
+    else:
+        st.error(
+            "APPROVAL_SECRET is missing. "
+            "Draft approvals are disabled."
+        )
 
     if st.button(
         "Reset session",
@@ -1205,41 +1092,38 @@ with st.sidebar:
         st.rerun()
 
     st.markdown(
-        '<div class="si-footnote" style="margin-top:0.75rem">'
-        'Prototype environment using synthetic data. '
-        'Saving a draft never sends an email.'
+        '<div class="si-footnote">'
+        'Synthetic data only. Approved drafts are saved, '
+        'never sent.'
         '</div>',
         unsafe_allow_html=True,
     )
 
 
 # ============================================================
-# Dashboard header
+# Page header with mode indicator
 # ============================================================
 
-mode_label = (
-    "Mock agent"
-    if real_process_email is None or st.session_state.force_mock
-    else "Live agent"
-)
+is_mock = real_process_email is None or st.session_state.force_mock
 
-mode_color = (
-    "var(--si-warning)"
-    if mode_label == "Mock agent"
-    else "var(--si-success)"
+mode_label = "Mock agent" if is_mock else "Live agent"
+mode_color = "var(--si-warning)" if is_mock else "var(--si-success)"
+mode_tip = (
+    "Classification comes from evaluation labels; "
+    "backend lookups are real."
+    if is_mock
+    else "Classification and drafts come from the live AI agent."
 )
 
 st.markdown(
     f'<div class="si-header">'
     f'<div>'
-    f'<div class="si-breadcrumb">Customer Operations / Inbox</div>'
-    f'<div class="si-title">Inbox Command Center</div>'
+    f'<div class="si-title">SmartInbox</div>'
     f'<div class="si-subtitle">'
-    f'Analyze messages, verify evidence, and approve '
-    f'AI-generated drafts before they are saved.'
+    f'AI-assisted replies with human approval'
     f'</div>'
     f'</div>'
-    f'<span class="si-env">'
+    f'<span class="si-mode" title="{safe(mode_tip)}">'
     f'<span class="si-dot" style="background:{mode_color}"></span>'
     f'{safe(mode_label)}'
     f'</span>'
@@ -1249,222 +1133,161 @@ st.markdown(
 
 
 # ============================================================
-# Dashboard metrics
+# Two-column layout
 # ============================================================
 
-analyzed_count = len(st.session_state.results)
+inbox_col, detail_col = st.columns([1, 1.55], gap="large")
 
-approved_count = sum(
-    1
-    for decision in st.session_state.decisions.values()
-    if (
-        decision.get("decision") == "approved"
-        and (decision.get("result") or {}).get("status") == "saved"
+
+# ============================================================
+# Left: inbox list
+# ============================================================
+
+with inbox_col:
+
+    statuses = {item.email_id: inbox_status(item) for item in emails}
+
+    st.markdown(
+        f'<div class="si-pane-title">Inbox'
+        f'<span class="si-pane-hint">{len(emails)} messages</span>'
+        f'</div>',
+        unsafe_allow_html=True,
     )
-)
 
-rejected_count = sum(
-    1
-    for decision in st.session_state.decisions.values()
-    if decision.get("decision") == "rejected"
-)
-
-metric_columns = st.columns(4)
-
-titles = [
-    "Inbox messages",
-    "Analyzed",
-    "Saved drafts",
-    "Rejected",
-]
-
-numbers = [
-    len(emails),
-    analyzed_count,
-    approved_count,
-    rejected_count,
-]
-
-for column, title, number in zip(
-    metric_columns,
-    titles,
-    numbers,
-):
-    column.metric(title, number)
-
-
-st.markdown(
-    "<div style='height:0.75rem'></div>",
-    unsafe_allow_html=True,
-)
-
-
-# ============================================================
-# Shared inbox
-# ============================================================
-
-statuses = {item.email_id: inbox_status(item) for item in emails}
-
-status_counts = {
-    name: (
-        len(emails)
-        if name == "All"
-        else sum(1 for value in statuses.values() if value == name)
-    )
-    for name in INBOX_STATUSES
-}
-
-section("Shared inbox", f"{len(emails)} messages")
-
-search_column, filter_column = st.columns([1.4, 1], gap="medium")
-
-query = search_column.text_input(
-    "Search inbox",
-    placeholder="Search by subject, sender, or email ID",
-    key="inbox_query",
-    label_visibility="collapsed",
-)
-
-if hasattr(st, "segmented_control"):
-    status_filter = filter_column.segmented_control(
-        "Status filter",
-        INBOX_STATUSES,
-        default="All",
-        format_func=lambda name: f"{name} {status_counts[name]}",
-        key="inbox_status_filter",
-        label_visibility="collapsed",
-    ) or "All"
-else:
-    status_filter = filter_column.radio(
-        "Status filter",
-        INBOX_STATUSES,
-        format_func=lambda name: f"{name} {status_counts[name]}",
-        key="inbox_status_filter",
-        horizontal=True,
+    query = st.text_input(
+        "Search inbox",
+        placeholder="Search subject, sender, or ID",
+        key="inbox_query",
         label_visibility="collapsed",
     )
 
-needle = query.strip().lower()
-
-visible = [
-    item
-    for item in emails
-    if (status_filter == "All" or statuses[item.email_id] == status_filter)
-    and (
-        not needle
-        or needle in item.subject.lower()
-        or needle in item.sender.lower()
-        or needle in item.email_id.lower()
-    )
-]
-
-with st.container(height=400, border=False, key="si_inbox_list"):
-
-    if not visible:
-        st.markdown(
-            '<div class="si-empty">No messages match the current filters.</div>',
-            unsafe_allow_html=True,
+    # Pills wrap onto a new line in narrow columns instead of overflowing.
+    if hasattr(st, "pills"):
+        status_filter = st.pills(
+            "Status",
+            INBOX_FILTERS,
+            default="All",
+            key="inbox_status_filter",
+            label_visibility="collapsed",
+        ) or "All"
+    else:
+        status_filter = st.radio(
+            "Status",
+            INBOX_FILTERS,
+            key="inbox_status_filter",
+            horizontal=True,
+            label_visibility="collapsed",
         )
 
-    for item in visible:
+    needle = query.strip().lower()
 
-        status = statuses[item.email_id]
-        priority = inbox_priority(item)
-
-        row_classes = "si-row"
-        if item.email_id == email.email_id:
-            row_classes += " is-selected"
-        if status == "New":
-            row_classes += " is-new"
-
-        priority_html = (
-            f'<span class="si-row-pri'
-            f'{" is-high" if priority.lower() in ("high", "urgent") else ""}">'
-            f"{safe(label(priority))}</span>"
-            if priority
-            else ""
+    visible = [
+        item
+        for item in emails
+        if (
+            status_filter == "All"
+            or statuses[item.email_id] == status_filter
         )
+        and (
+            not needle
+            or needle in item.subject.lower()
+            or needle in item.sender.lower()
+            or needle in item.email_id.lower()
+        )
+    ]
 
-        with st.container(key=f"si_row_{item.email_id}"):
+    with st.container(height=560, border=False, key="si_inbox_list"):
 
+        if not visible:
             st.markdown(
-                f'<div class="{row_classes}">'
-                f'<span class="si-row-dot" '
-                f'style="background:{INBOX_STATUS_COLOR[status]}"></span>'
-                f'<div class="si-row-main">'
-                f'<div class="si-row-top">'
-                f'<span class="si-row-sender">{safe(item.sender)}</span>'
-                f'<span class="si-row-id si-mono">{safe(item.email_id)}</span>'
-                f'</div>'
-                f'<div class="si-row-subject" dir="auto">{safe(item.subject)}</div>'
-                f'<div class="si-row-preview" dir="auto">'
-                f'{safe(preview_text(item.body))}'
-                f'</div>'
-                f'</div>'
-                f'<div class="si-row-side">'
-                f'<span class="si-row-status">{safe(status)}</span>'
-                f'{priority_html}'
-                f'</div>'
-                f'</div>',
+                '<div class="si-empty">'
+                'No messages match the current filters.'
+                '</div>',
                 unsafe_allow_html=True,
             )
 
-            st.button(
-                f"Open {item.email_id}",
-                key=f"si_open_{item.email_id}",
-                on_click=select_email,
-                args=(item.email_id,),
-                use_container_width=True,
-            )
+        for item in visible:
 
+            status = statuses[item.email_id]
+            priority = inbox_priority(item)
 
-st.markdown(
-    "<div class='si-divider' style='margin:1.5rem 0'></div>",
-    unsafe_allow_html=True,
-)
+            row_classes = "si-row"
+            if item.email_id == email.email_id:
+                row_classes += " is-selected"
+            if status == "New":
+                row_classes += " is-new"
+
+            priority_html = ""
+            if priority:
+                high = priority.lower() in ("high", "urgent")
+                priority_html = (
+                    f'<span class="si-row-pri'
+                    f'{" is-high" if high else ""}">'
+                    f"{safe(label(priority))}</span>"
+                )
+
+            with st.container(key=f"si_row_{item.email_id}"):
+
+                st.markdown(
+                    f'<div class="{row_classes}">'
+                    f'<span class="si-dot" '
+                    f'style="background:{INBOX_STATUS_COLOR[status]}">'
+                    f'</span>'
+                    f'<div class="si-row-main">'
+                    f'<div class="si-row-line">'
+                    f'<span class="si-row-sender">{safe(item.sender)}</span>'
+                    f'<span class="si-row-status">{safe(status)}</span>'
+                    f'</div>'
+                    f'<div class="si-row-subject" dir="auto">'
+                    f'{safe(item.subject)}'
+                    f'</div>'
+                    f'<div class="si-row-line">'
+                    f'<span class="si-row-preview" dir="auto">'
+                    f'{safe(preview_text(item.body))}'
+                    f'</span>'
+                    f'{priority_html}'
+                    f'</div>'
+                    f'</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+                st.button(
+                    f"Open {item.email_id}",
+                    key=f"si_open_{item.email_id}",
+                    on_click=select_email,
+                    args=(item.email_id,),
+                    use_container_width=True,
+                )
 
 
 # ============================================================
-# Workspace layout
+# Right: selected email, analysis, reply, approval
 # ============================================================
 
-left, right = st.columns(
-    [1, 1.22],
-    gap="large",
-)
+with detail_col:
 
-
-# ============================================================
-# Incoming email panel
-# ============================================================
-
-with left:
-
-    section("Incoming email", email.email_id)
+    # --------------------------------------------------------
+    # Selected email
+    # --------------------------------------------------------
 
     st.markdown(
-        f'<div class="si-card">'
-        f'<div class="si-email-subject">'
+        f'<div class="si-mail">'
+        f'<div class="si-mail-subject" dir="auto">'
         f'{safe(email.subject)}'
         f'</div>'
-        f'<div class="si-meta-grid">'
-        f'<span class="si-meta-key">From</span>'
-        f'<span class="si-meta-val">{safe(email.sender)}</span>'
-        f'<span class="si-meta-key">Message ID</span>'
-        f'<span class="si-meta-val si-mono">{safe(email.email_id)}</span>'
-        f'<span class="si-meta-key">Language</span>'
-        f'<span class="si-meta-val">{safe(email.language.upper())}</span>'
+        f'<div class="si-mail-meta">'
+        f'<span>From <b>{safe(email.sender)}</b></span>'
+        f'<span>ID <b class="si-mono">{safe(email.email_id)}</b></span>'
+        f'<span>Language <b>{safe(email.language.upper())}</b></span>'
         f'</div>'
-        f'<div class="si-divider"></div>'
-        f'<div class="si-message">'
-        f'{safe(email.body)}'
-        f'</div>'
+        f'<div class="si-mail-body">{safe(email.body)}</div>'
         f'</div>',
         unsafe_allow_html=True,
     )
 
     if st.button(
-        "Analyze with agent",
+        "Analyze with AI",
         type="primary",
         use_container_width=True,
         key="run",
@@ -1499,92 +1322,51 @@ with left:
                     "Check the local terminal for details."
                 )
 
-    st.caption(
-        "The agent may propose a reply. "
-        "Human approval is required before saving."
-    )
-
-
-# ============================================================
-# Agent workspace
-# ============================================================
-
-with right:
-
-    section("Agent workspace")
-
-    entry = st.session_state.results.get(
-        email.email_id
-    )
+    entry = st.session_state.results.get(email.email_id)
 
     if entry is None:
 
-        st.info(
-            "Select a message and click "
-            "**Analyze with agent** to see its "
-            "classification, evidence, and draft."
+        st.markdown(
+            '<div class="si-placeholder">'
+            'Run the analysis to classify this message '
+            'and draft a suggested reply.'
+            '</div>',
+            unsafe_allow_html=True,
         )
 
     else:
 
         result, mode = entry
 
-        if mode == "mock":
-            st.warning(
-                "Mock preview. Classification labels "
-                "come from evaluation data; "
-                "backend lookups are real."
-            )
-
-        status_text = label(result.status)
-
-        st.markdown(
-            f'<div class="si-summary">'
-            f'<div>'
-            f'<div class="si-summary-title">Analysis result</div>'
-            f'<div class="si-note">'
-            f'{safe(len(result.tools_used))} tool(s) used'
-            f' &nbsp;|&nbsp; {safe(mode.title())} mode'
-            f'</div>'
-            f'</div>'
-            f'{badge(status_text, status_tone(result.status))}'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
         # ----------------------------------------------------
-        # Classification
+        # AI analysis
         # ----------------------------------------------------
 
-        priority_tone = {
-            "urgent": "danger",
-            "high": "danger",
-            "medium": "warning",
-            "low": "neutral",
-        }.get((result.priority or "").lower(), "neutral")
+        department = label(result.primary_department)
+        if result.secondary_department:
+            department += f" + {label(result.secondary_department)}"
 
         st.markdown(
-            f'<div class="si-kv-grid">'
-            f'<div class="si-kv">'
-            f'<div class="si-kv-label">Intent</div>'
-            f'<div class="si-kv-value">{safe(label(result.intent))}</div>'
+            f'<div class="si-section">AI analysis</div>'
+            f'<div class="si-analysis">'
+            f'<div class="si-cell">'
+            f'<div class="si-cell-label">Intent</div>'
+            f'<div class="si-cell-value">{safe(label(result.intent))}</div>'
             f'</div>'
-            f'<div class="si-kv">'
-            f'<div class="si-kv-label">Priority</div>'
-            f'<div class="si-kv-value">'
-            f'{badge(label(result.priority), priority_tone)}'
-            f'</div>'
-            f'</div>'
-            f'<div class="si-kv">'
-            f'<div class="si-kv-label">Primary team</div>'
-            f'<div class="si-kv-value">'
-            f'{safe(label(result.primary_department))}'
+            f'<div class="si-cell">'
+            f'<div class="si-cell-label">Priority</div>'
+            f'<div class="si-cell-value">'
+            f'{badge(label(result.priority), priority_tone(result.priority))}'
             f'</div>'
             f'</div>'
-            f'<div class="si-kv">'
-            f'<div class="si-kv-label">Secondary team</div>'
-            f'<div class="si-kv-value">'
-            f'{safe(label(result.secondary_department))}'
+            f'<div class="si-cell">'
+            f'<div class="si-cell-label">Department</div>'
+            f'<div class="si-cell-value">{safe(department)}</div>'
+            f'</div>'
+            f'<div class="si-cell">'
+            f'<div class="si-cell-label">Status</div>'
+            f'<div class="si-cell-value">'
+            f'{badge(label(result.status), status_tone(result.status))}'
             f'</div>'
             f'</div>'
             f'</div>',
@@ -1592,9 +1374,9 @@ with right:
         )
 
         if result.security_flags:
-            st.error(
-                "Security flags: "
-                + ", ".join(result.security_flags)
+            st.warning(
+                "Security review: "
+                + ", ".join(label(flag) for flag in result.security_flags)
             )
 
         if result.error:
@@ -1604,297 +1386,255 @@ with right:
             )
 
         # ----------------------------------------------------
-        # Workspace tabs
+        # Suggested reply and human approval
         # ----------------------------------------------------
 
-        draft_tab, evidence_tab, diagnostics_tab = st.tabs(
-            [
-                "Draft and approval",
-                f"Evidence ({len(result.evidence)})",
-                "Agent trace",
-            ]
+        has_draft = (
+            result.status == "draft_ready"
+            and result.draft_body is not None
+            and result.draft_subject is not None
         )
 
-        # ----------------------------------------------------
-        # Draft and approval tab
-        # ----------------------------------------------------
+        decision = st.session_state.decisions.get(email.email_id)
 
-        with draft_tab:
+        st.markdown(
+            '<div class="si-section">Suggested reply</div>',
+            unsafe_allow_html=True,
+        )
 
-            has_draft = (
-                result.status == "draft_ready"
-                and result.draft_body is not None
-                and result.draft_subject is not None
+        action_id = None
+
+        if not has_draft:
+
+            st.markdown(
+                '<div class="si-placeholder" style="margin-top:0">'
+                'No reply was drafted. This message needs more '
+                'information or a manual review.'
+                '</div>',
+                unsafe_allow_html=True,
             )
 
-            if not has_draft:
-                st.info(
-                    "No review-ready draft. "
-                    "This message may need more information "
-                    "or manual review."
-                )
+        else:
 
             subject = st.text_input(
-                "Reply subject",
+                "Subject",
                 value=result.draft_subject or "",
                 key=f"subj_{email.email_id}",
-                disabled=not has_draft,
+                disabled=decision is not None,
             )
 
             body = st.text_area(
-                "Reply body",
+                "Message",
                 value=result.draft_body or "",
-                height=230,
+                height=200,
                 key=f"body_{email.email_id}",
-                disabled=not has_draft,
+                disabled=decision is not None,
             )
 
-            st.markdown(
-                '<div class="si-subhead">Human approval</div>',
-                unsafe_allow_html=True,
+            # Bind the action ID to the exact edited draft.
+            action_id = compute_action_id(
+                email.email_id,
+                result.primary_department,
+                result.secondary_department,
+                subject,
+                body,
             )
 
-            st.caption(
-                "Review and edit the draft before saving. "
-                "Approval is tied to the exact final text "
-                "and routing."
-            )
+        if decision:
 
-            decision = st.session_state.decisions.get(
-                email.email_id
-            )
+            outcome = decision.get("result") or {}
 
-            if decision:
+            if (
+                decision["decision"] == "approved"
+                and outcome.get("status") == "saved"
+            ):
+                st.success(
+                    "Approved and saved as draft "
+                    f"{outcome['record_id']}. Nothing was sent."
+                )
 
-                outcome = decision.get("result") or {}
+            elif decision["decision"] == "approved":
 
-                if (
-                    decision["decision"] == "approved"
-                    and outcome.get("status") == "saved"
-                ):
-                    st.success(
-                        "Approved and saved. Record: "
-                        f"{outcome['record_id']}"
-                    )
+                error = outcome.get("error") or {}
 
-                elif decision["decision"] == "approved":
-
-                    error = outcome.get("error") or {}
-
-                    st.error(
-                        "Write blocked: "
-                        + str(
-                            error.get(
-                                "code",
-                                "unknown_error",
-                            )
+                st.error(
+                    "Save was blocked: "
+                    + str(
+                        error.get(
+                            "code",
+                            "unknown_error",
                         )
                     )
-
-                else:
-                    st.warning(
-                        "Rejected. No draft was saved."
-                    )
+                )
 
             else:
+                st.info("Draft rejected. Nothing was saved.")
 
-                # Bind action ID to the exact edited draft.
-                action_id = compute_action_id(
-                    email.email_id,
-                    result.primary_department,
-                    result.secondary_department,
-                    subject,
-                    body,
-                )
+        elif has_draft:
 
-                with st.expander(
-                    "Approval action details",
-                    expanded=False,
-                ):
-                    st.code(
-                        action_id,
-                        language="text",
-                    )
+            st.markdown(
+                '<div class="si-hint">'
+                'Review and edit before approving. Approval saves '
+                'this exact text as a draft; it is never sent.'
+                '</div>',
+                unsafe_allow_html=True,
+            )
 
-                    st.caption(
-                        "Changing the message changes its action ID."
-                    )
+            can_approve = (
+                result.requires_approval
+                and approval_enabled
+                and bool(subject.strip())
+                and bool(body.strip())
+            )
 
-                can_approve = (
-                    has_draft
-                    and result.requires_approval
-                    and bool(os.environ.get("APPROVAL_SECRET"))
-                    and bool(subject.strip())
-                    and bool(body.strip())
-                )
+            approve_column, reject_column = st.columns(2)
 
-                approve_column, reject_column = st.columns(2)
-
-                if approve_column.button(
-                    "Approve and save",
-                    type="primary",
-                    use_container_width=True,
-                    disabled=not can_approve,
-                    key="approve",
-                ):
-
-                    payload = {
-                        "action_id": action_id,
-                        "email_id": email.email_id,
-                        "primary_department": (
-                            result.primary_department
-                        ),
-                        "secondary_department": (
-                            result.secondary_department
-                        ),
-                        "draft_subject": subject,
-                        "draft_body": body,
-                        "approval_token": (
-                            issue_approval_token(action_id)
-                        ),
-                    }
-
-                    with st.spinner(
-                        "Saving approved draft through MCP..."
-                    ):
-                        outcome = call_save_draft(payload)
-
-                    st.session_state.decisions[
-                        email.email_id
-                    ] = {
-                        "decision": "approved",
-                        "result": outcome,
-                    }
-
-                    st.rerun()
-
-                if reject_column.button(
-                    "Reject draft",
-                    use_container_width=True,
-                    key="reject",
-                    disabled=not has_draft,
-                ):
-
-                    record_rejection(
-                        action_id,
-                        email.email_id,
-                    )
-
-                    st.session_state.decisions[
-                        email.email_id
-                    ] = {
-                        "decision": "rejected",
-                        "result": None,
-                    }
-
-                    st.rerun()
-
-        # ----------------------------------------------------
-        # Evidence tab
-        # ----------------------------------------------------
-
-        with evidence_tab:
-
-            if not result.evidence:
-                st.info(
-                    "No supporting evidence was returned "
-                    "for this message."
-                )
-
-            for index, item in enumerate(
-                result.evidence,
-                start=1,
+            if approve_column.button(
+                "Approve & Save",
+                type="primary",
+                use_container_width=True,
+                disabled=not can_approve,
+                key="approve",
             ):
 
-                score_html = (
-                    badge(f"Relevance {item.score:.2f}", "accent")
-                    if item.score is not None
-                    else ""
-                )
-
-                st.markdown(
-                    f'<div class="si-evidence">'
-                    f'<div class="si-evidence-head">'
-                    f'<span class="si-evidence-source si-mono">'
-                    f'{index}. {safe(item.source_id)}'
-                    f'</span>'
-                    f'{score_html}'
-                    f'</div>'
-                    f'<div class="si-evidence-text">'
-                    f'{safe(item.excerpt)}'
-                    f'</div>'
-                    f'</div>',
-                    unsafe_allow_html=True,
-                )
-
-        # ----------------------------------------------------
-        # Trace and budget tab
-        # ----------------------------------------------------
-
-        with diagnostics_tab:
-
-            st.markdown(
-                '<div class="si-subhead" style="margin-top:0.4rem">'
-                'Tools invoked</div>',
-                unsafe_allow_html=True,
-            )
-
-            if result.tools_used:
-                st.markdown(
-                    " ".join(
-                        badge(tool, "neutral")
-                        for tool in result.tools_used
+                payload = {
+                    "action_id": action_id,
+                    "email_id": email.email_id,
+                    "primary_department": (
+                        result.primary_department
                     ),
-                    unsafe_allow_html=True,
+                    "secondary_department": (
+                        result.secondary_department
+                    ),
+                    "draft_subject": subject,
+                    "draft_body": body,
+                    "approval_token": (
+                        issue_approval_token(action_id)
+                    ),
+                }
+
+                with st.spinner(
+                    "Saving approved draft through MCP..."
+                ):
+                    outcome = call_save_draft(payload)
+
+                st.session_state.decisions[
+                    email.email_id
+                ] = {
+                    "decision": "approved",
+                    "result": outcome,
+                }
+
+                st.rerun()
+
+            if reject_column.button(
+                "Reject",
+                use_container_width=True,
+                key="reject",
+            ):
+
+                record_rejection(
+                    action_id,
+                    email.email_id,
                 )
-            else:
-                st.caption("None")
+
+                st.session_state.decisions[
+                    email.email_id
+                ] = {
+                    "decision": "rejected",
+                    "result": None,
+                }
+
+                st.rerun()
+
+        # ----------------------------------------------------
+        # Supporting evidence
+        # ----------------------------------------------------
+
+        if result.evidence:
 
             st.markdown(
-                '<div class="si-subhead">Execution trace</div>',
+                "<div style='height:0.5rem'></div>",
                 unsafe_allow_html=True,
             )
-
-            if result.trace:
-                st.dataframe(
-                    [
-                        item.model_dump()
-                        for item in result.trace
-                    ],
-                    hide_index=True,
-                    width="stretch",
-                )
-            else:
-                st.caption(
-                    "No tool calls were recorded."
-                )
-
-            st.markdown(
-                '<div class="si-subhead">Budget usage</div>',
-                unsafe_allow_html=True,
-            )
-
-            st.json(result.budget.model_dump())
 
             with st.expander(
-                "Audit log (latest 8 events)"
+                f"Supporting evidence ({len(result.evidence)})"
             ):
 
-                path = (
-                    storage_dir()
-                    / "audit_log.jsonl"
+                for item in result.evidence:
+
+                    score_html = (
+                        f'<span class="si-evidence-score">'
+                        f'relevance {item.score:.2f}</span>'
+                        if item.score is not None
+                        else ""
+                    )
+
+                    st.markdown(
+                        f'<div class="si-evidence">'
+                        f'<div class="si-evidence-source si-mono">'
+                        f'{safe(item.source_id)}{score_html}'
+                        f'</div>'
+                        f'<div class="si-evidence-text">'
+                        f'{safe(item.excerpt)}'
+                        f'</div>'
+                        f'</div>',
+                        unsafe_allow_html=True,
+                    )
+
+        # ----------------------------------------------------
+        # Developer mode: diagnostics only
+        # ----------------------------------------------------
+
+        if st.session_state.dev_mode:
+
+            with st.expander("Developer details"):
+
+                st.caption(
+                    f"Agent mode: {mode}. "
+                    + (
+                        "Classification labels come from evaluation "
+                        "data; backend lookups are real."
+                        if mode == "mock"
+                        else "Results come from the live agent."
+                    )
                 )
 
+                st.markdown("**Tools invoked**")
+                st.write(", ".join(result.tools_used) or "None")
+
+                st.markdown("**Execution trace**")
+                if result.trace:
+                    st.dataframe(
+                        [item.model_dump() for item in result.trace],
+                        hide_index=True,
+                        width="stretch",
+                    )
+                else:
+                    st.caption("No tool calls were recorded.")
+
+                st.markdown("**Budget usage**")
+                st.json(result.budget.model_dump())
+
+                if action_id:
+                    st.markdown("**Approval action ID**")
+                    st.code(action_id, language="text")
+                    st.caption(
+                        "Changing the draft changes its action ID."
+                    )
+
+                st.markdown("**Audit log (latest 8 events)**")
+
+                path = storage_dir() / "audit_log.jsonl"
+
                 lines = (
-                    path.read_text(
-                        encoding="utf-8"
-                    ).splitlines()[-8:]
+                    path.read_text(encoding="utf-8").splitlines()[-8:]
                     if path.exists()
                     else []
                 )
 
                 st.code(
-                    "\n".join(lines)
-                    or "No audit events recorded.",
+                    "\n".join(lines) or "No audit events recorded.",
                     language="json",
                 )
