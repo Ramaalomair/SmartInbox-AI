@@ -15,7 +15,7 @@ SmartInbox AI uses a fictional company, **NovaTech**, and synthetic email, order
 
 ## How to run
 
-From the project root, activate the project's Python environment and install the dependencies required by your local setup. Configure `OPENROUTER_API_KEY` in `.env`. Approval-token configuration may also be required for approved writes; consult `mcp_server/approval.py` and the project's configuration before enabling that flow.
+From the project root, activate the project's Python environment and install the dependencies required by your local setup. Configure `OPENROUTER_API_KEY` in `.env` (see `.env.example` if present). Approval-token configuration may also be required for approved writes; consult `mcp_server/approval.py` and the project's configuration before enabling that flow.
 
 **Run the existing evaluation suite:**
 
@@ -23,22 +23,16 @@ From the project root, activate the project's Python environment and install the
 python -m evals.run_evals --outdir evals/reports/final_evaluation
 ```
 
-**Resume an interrupted evaluation without rerunning completed cases:**
+**Run the security, approval, and access-control tests:**
 
 ```bash
-python -m evals.run_evals --outdir evals/reports/final_evaluation --resume
+python -m pytest tests/test_access_control.py tests/test_approval.py evals/test_security.py -v
 ```
 
-**Run security tests:**
+**Run retrieval evaluation:**
 
 ```bash
-python -m pytest evals/test_security.py -v
-```
-
-**Run approval and access-control tests:**
-
-```bash
-python -m pytest tests/test_approval.py tests/test_access_control.py -v
+python -m evals.evaluate_retrieval
 ```
 
 **User interface:** `app.py` contains the application UI and an agent execution path. Confirm its framework and entry-point command in the source before publishing a launch command; the earlier `uv run smartinbox.py ...` commands were placeholders and do not match the current file tree.
@@ -87,28 +81,36 @@ The original template's `export_records` decoy is **not listed as an implemented
 
 ## Evaluation
 
-**Suite:** **34 synthetic email cases** in `evals/eval_cases.json`, run by `evals/run_evals.py`. The suite checks email ID, intent, primary and secondary departments, priority, required tools, and approval declaration. Results are saved after each case, allowing interrupted runs to resume.
+**Suite:** 34 synthetic email cases in `evals/eval_cases.json`, evaluated with `evals/run_evals.py`. The suite compares the agent's structured outputs against predefined expectations for email identification, intent, primary and secondary department routing, priority, required tools, and approval declaration.
 
-**Configurations:** A = earlier baseline evaluation; B = updated classification/routing instructions and execution budget. These are **successive development snapshots**, not a controlled one-variable A/B experiment. Reported results therefore show observed changes, not causal attribution to a single modification.
+**Evaluation method:** One reported set of results covering all 34 cases. The assessment uses structural checks; `pass^k`, average model requests, and average token usage were not measured. These results do not represent an independent semantic assessment of generated replies.
 
-| Config | Structural pass rate | pass^k | Avg requests | Avg tokens |
-|---|---:|---|---|---|
-| A · Baseline | 20/34 (**58.82%**) | Not measured | Not measured | Not measured |
-| B · Final | 26/34 (**76.47%**) | Not measured | Not measured | Not measured |
+### Agent evaluation results
 
-| Structural check | A · Baseline | B · Final |
+| Metric | Result |
+|---|---:|
+| Total cases | 34 |
+| Structurally passed | 26 |
+| Structurally failed | 8 |
+| **Structural pass rate** | **76.47%** |
+| Execution errors | 0 |
+| pass^k | Not measured |
+| Average requests | Not measured |
+| Average tokens | Not measured |
+
+| Structural check | Correct cases | Accuracy |
 |---|---:|---:|
-| Email ID | Not available | 34/34 (100.00%) |
-| Intent | 94.12% | 31/34 (91.18%) |
-| Primary department | 88.24% | 32/34 (94.12%) |
-| Secondary department | 94.12% | 33/34 (97.06%) |
-| Priority | 73.53% | 30/34 (88.24%) |
-| Required tools | 91.18% | 31/34 (91.18%) |
-| Approval declared | 79.41% | 30/34 (88.24%) |
+| Email ID | 34/34 | 100.00% |
+| Intent classification | 31/34 | 91.18% |
+| Primary department | 32/34 | 94.12% |
+| Secondary department | 33/34 | 97.06% |
+| Priority | 30/34 | 88.24% |
+| Required tools | 31/34 | 91.18% |
+| Approval declaration | 30/34 | 88.24% |
 
-**Final execution:** 34/34 cases completed, **0 execution errors**, with **330.457 seconds** total reported latency. The supplementary `approval_or_safe_handoff_rate` was **100%**, but this combines approval declarations with certain safe manual-review handoffs; it is **not** proof that every email was approved or that all security behaviors passed.
+The evaluation report records **330.457 seconds** of cumulative case latency. Its supplementary `approval_or_safe_handoff_rate` is **100%**, but that diagnostic combines approval declarations with some safe manual-review handoffs and does not establish that every action was approved.
 
-**Important evaluation boundary:** `behavior_cases_not_assessed = 34`. The current runner does not automatically grade whether draft text is factually grounded, whether refusals are semantically correct, or whether all expected behaviors occurred. These require separate behavioral checks and/or human review.
+**Evaluation scope:** `behavior_cases_not_assessed = 34`. The structural runner does not independently verify the factual grounding of every draft, semantic correctness of refusals, or full end-to-end behavior. These require additional behavioral evaluation.
 
 ### Retrieval evaluation
 
@@ -124,16 +126,18 @@ Hybrid RRF has the highest measured MRR@3, while Semantic E5 and Hybrid RRF tie 
 
 ### Error analysis
 
-| Root cause / metric | Baseline | Final | Interpretation / fix tried |
-|---|---:|---:|---|
-| Overall structural failures | 14/34 | 8/34 | Improved classification rules and execution configuration; failures remain. |
-| Priority mismatches | 9/34 | 4/34 | Clarified HIGH/MEDIUM/LOW criteria, including operational impact rather than urgency words alone. |
-| Primary-department mismatches | 4/34 | 2/34 | Refined routing instructions. |
-| Intent mismatches | 2/34 | 3/34 | Small regression; further prompt changes may trade off performance elsewhere. |
-| Required-tool mismatches | 3/34 | 3/34 | No aggregate improvement; examine individual cases before further tuning. |
-| Approval-declaration mismatches | 7/34 | 4/34 | Separate strict approval declaration from manual-review safe handoff. |
+The agent passed **26 of 34** structural cases. The remaining **8 cases** failed at least one check. Error counts by criterion overlap because a single email can have multiple mismatches.
 
-**Next evaluation change:** Add a behavioral grader and manual review for high-risk cases rather than optimizing solely for structural accuracy. Retest on an independent holdout suite to reduce tuning-set bias.
+| Error category | Mismatches | Suggested improvement |
+|---|---:|---|
+| Intent classification | 3 | Refine distinctions between overlapping inquiry intents. |
+| Primary department routing | 2 | Clarify routing for ambiguous or multi-department requests. |
+| Secondary department routing | 1 | Improve secondary-department selection criteria. |
+| Priority classification | 4 | Strengthen handling of urgency, impact, and escalation. |
+| Required tool selection | 3 | Tighten tool-selection rules and check expected lookups. |
+| Approval declaration | 4 | Make approval requirements more consistent in structured outputs. |
+
+**Next evaluation steps:** Add semantic/behavioral grading for grounded drafts, tool execution, and safe refusals; manually review high-risk cases; and test on an independent holdout set.
 
 ## Security note
 
@@ -148,7 +152,6 @@ Hybrid RRF has the highest measured MRR@3, while Semantic E5 and Hybrid RRF tie 
 
 - No confirmed live email-provider integration or real message sending; the documented write path saves approved drafts locally.
 - Evaluations use synthetic NovaTech data and a small 34-case suite; the results are not production accuracy estimates.
-- The baseline and final suites reflect iterative development, not a controlled model benchmark.
 - All **34 expected behaviors remain unassessed by the structural runner**; passing the 40 dedicated tests does not substitute for full per-email semantic grading. Add behavioral and end-to-end testing, especially for security-sensitive cases.
 - UI entry point and installation instructions should be verified against `app.py` and the project's dependency files before release.
 - Authentication, monitoring, rate-limit handling, production secrets management, and data-governance controls need deployment-level review.
