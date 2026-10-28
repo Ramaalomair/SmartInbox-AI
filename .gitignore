@@ -31,3 +31,5 @@ outputs/
 .idea/
 .DS_Store
 Thumbs.db
+# Runtime storage
+storage/*.jsonl
