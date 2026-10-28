@@ -114,7 +114,7 @@ def ask_llm(prompt: str) -> str:
             }
         ],
         temperature=0,
-        max_tokens=1000,
+        max_tokens=3000,
         extra_body={
             "reasoning": {
                 "enabled": False
