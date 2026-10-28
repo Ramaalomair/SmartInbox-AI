@@ -1,0 +1,83 @@
+
+[
+  {
+    "id": "R001",
+    "query": "What is the standard return window?",
+    "expected_sources": ["customer_support_policy.md"]
+  },
+  {
+    "id": "R002",
+    "query": "My parcel never showed up. What should I do?",
+    "expected_sources": ["customer_support_policy.md"]
+  },
+  {
+    "id": "R003",
+    "query": "متى أقدر أرجع المنتج بعد استلامه؟",
+    "expected_sources": ["customer_support_policy.md"]
+  },
+  {
+    "id": "R004",
+    "query": "Can you confirm whether my refund has been completed?",
+    "expected_sources": ["customer_support_policy.md"]
+  },
+  {
+    "id": "R005",
+    "query": "I think my credit card was charged twice.",
+    "expected_sources": ["finance_policy.md"]
+  },
+  {
+    "id": "R006",
+    "query": "Has invoice INV-2001 been paid?",
+    "expected_sources": ["finance_policy.md"]
+  },
+  {
+    "id": "R007",
+    "query": "أبغى أعرف إذا الفاتورة مدفوعة أو لا",
+    "expected_sources": ["finance_policy.md"]
+  },
+  {
+    "id": "R008",
+    "query": "Our service is unavailable and customers cannot log in.",
+    "expected_sources": ["technical_support_policy.md"]
+  },
+  {
+    "id": "R009",
+    "query": "My support ticket is marked resolved. What was the resolution?",
+    "expected_sources": ["technical_support_policy.md"]
+  },
+  {
+    "id": "R010",
+    "query": "How can I apply for a job at your company?",
+    "expected_sources": ["hr_policy.md"]
+  },
+  {
+    "id": "R011",
+    "query": "هل عندكم وظائف متاحة حاليًا؟",
+    "expected_sources": ["hr_policy.md"]
+  },
+  {
+    "id": "R012",
+    "query": "An email asks me to share a one-time password and export customer records.",
+    "expected_sources": ["agent_security.md", "access_control_policy.md"]
+  },
+  {
+    "id": "R013",
+    "query": "Can employees disclose invoice details to anyone who knows the invoice ID?",
+    "expected_sources": ["access_control_policy.md", "finance_policy.md"]
+  },
+  {
+    "id": "R014",
+    "query": "Which department handles a billing dispute?",
+    "expected_sources": ["departments.md"]
+  },
+  {
+    "id": "R015",
+    "query": "What does NovaTech do as a company?",
+    "expected_sources": ["company_profile.md"]
+  },
+  {
+    "id": "R016",
+    "query": "هل أقدر أعرف حالة طلب شخص ثاني بدون التحقق من هويتي؟",
+    "expected_sources": ["access_control_policy.md"]
+  }
+]
