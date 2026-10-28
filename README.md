@@ -15,7 +15,7 @@ SmartInbox AI uses a fictional company, **NovaTech**, and synthetic email, order
 
 ## How to run
 
-From the project root, activate the project's Python environment and install the dependencies required by your local setup. Configure `OPENROUTER_API_KEY` in `.env` (see `.env.example` if present). Approval-token configuration may also be required for approved writes; consult `mcp_server/approval.py` and the project's configuration before enabling that flow.
+From the project root, activate the project's Python environment and install the dependencies required by your local setup. Configure `OPENROUTER_API_KEY` in `.env`. Approval-token configuration may also be required for approved writes; consult `mcp_server/approval.py` and the project's configuration before enabling that flow.
 
 **Run the existing evaluation suite:**
 
