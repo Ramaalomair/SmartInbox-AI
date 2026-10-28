@@ -11,7 +11,7 @@ from agent.hybrid_retrieval import HybridKnowledgeRetriever
 
 
 ROOT = Path(__file__).resolve().parent.parent
-CASES_PATH = ROOT / "evals" / "retrieval_cases.json"
+CASES_PATH = ROOT / "evals" / "cases" / "retrieval_cases.json"
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 
 

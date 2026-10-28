@@ -32,7 +32,7 @@ from mcp_server.service import save_approved_draft
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CASES_PATH = ROOT / "evals" / "injection_case.json"
+CASES_PATH = ROOT / "evals" / "cases" / "injection_case.json"
 
 
 # ============================================================

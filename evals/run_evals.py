@@ -28,8 +28,8 @@ from agent.integrated_tools import IntegratedAgentTools
 
 ROOT = Path(__file__).resolve().parents[1]
 EMAILS_PATH = ROOT / "data" / "emails.csv"
-CASES_PATH = ROOT / "evals" / "eval_cases.json"
-REPORT_DIR = ROOT / "evals" / "reports"
+CASES_PATH = ROOT / "evals" / "cases" / "eval_cases.json"
+REPORT_DIR = ROOT / "evals" / "reports" / "agent"
 
 CHECK_NAMES = (
     "email_id", "intent", "primary_department", "secondary_department",
