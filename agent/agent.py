@@ -5,6 +5,9 @@ from agent.llm import client, MODEL
 from agent.retrieval import KnowledgeRetriever
 from agent.schemas import AgentConfig
 
+# Expose the shared agent entry point for the UI and evaluation runner.
+from agent.orchestrator import process_email
+
 
 retriever = KnowledgeRetriever()
 
@@ -60,14 +63,17 @@ def execute_tool(name, arguments, config: AgentConfig) -> dict:
 
 
 def estimate_input_tokens(messages: list) -> int:
-    """Conservatively estimate input tokens before an API call."""
+    """Estimate input tokens before an API call."""
 
     payload = json.dumps(
-        {"messages": messages, "tools": TOOLS},
+        {
+            "messages": messages,
+            "tools": TOOLS
+        },
         ensure_ascii=False
     )
 
-    # Approximation only; provider token counts are authoritative.
+    # Approximation only; actual token usage comes from the provider.
     return len(payload.encode("utf-8")) // 3 + 100
 
 
@@ -75,7 +81,7 @@ def run_agent(
     question: str,
     config: AgentConfig | None = None
 ) -> str:
-    """Run a tool-calling agent with budget checks."""
+    """Run the standalone tool-calling agent with budget checks."""
 
     if config is None:
         config = AgentConfig()
@@ -103,7 +109,7 @@ def run_agent(
 
     for step in range(config.max_steps):
 
-        # Check remaining output and cost budgets.
+        # Check the remaining output and cost budgets.
         remaining_output = (
             config.max_output_tokens - total_output_tokens
         )
@@ -114,7 +120,7 @@ def run_agent(
         if total_cost_usd >= config.max_estimated_cost_usd:
             return "Budget exhausted: cost limit reached."
 
-        # Estimate the upcoming input size.
+        # Estimate the input size before sending the request.
         estimated_input = estimate_input_tokens(messages)
 
         if (
@@ -123,7 +129,7 @@ def run_agent(
         ):
             return "Budget exhausted: input token limit reached."
 
-        # Limit output tokens for the upcoming LLM call.
+        # Limit the output tokens of this call.
         call_max_tokens = min(1000, remaining_output)
 
         response = client.chat.completions.create(
@@ -134,7 +140,7 @@ def run_agent(
             max_tokens=call_max_tokens,
         )
 
-        # Update cumulative usage.
+        # Track token and cost usage across all LLM calls.
         if response.usage:
             total_input_tokens += response.usage.prompt_tokens or 0
             total_output_tokens += response.usage.completion_tokens or 0
@@ -154,7 +160,7 @@ def run_agent(
             f"cost=${total_cost_usd:.6f}"
         )
 
-        # Check actual usage after the LLM call.
+        # Enforce cumulative budgets after the API call.
         if total_input_tokens > config.max_input_tokens:
             return "Budget exhausted: input token limit exceeded."
 

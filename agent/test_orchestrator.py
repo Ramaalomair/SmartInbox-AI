@@ -7,24 +7,33 @@ from agent.schemas import EmailInput, AgentConfig
 
 
 async def main():
-    """Test classification and policy retrieval integration."""
+    """Test classification, retrieval, and record lookup."""
 
+    
     email = EmailInput(
-        email_id="TEST-001",
-        sender="customer@example.com",
-        subject="Delayed order",
-        body="My order has not arrived yet.",
-        language="en"
+     email_id="TEST-POLICY",
+     sender="customer@example.com",
+     subject="Return policy question",
+     body="What is the standard return window for a product?",
+     language="en"
     )
+
 
     tools = MockAgentTools()
 
     result = await process_email(
         email=email,
         tools=tools,
-        config=AgentConfig()
+        config=AgentConfig(
+            max_steps=6,
+            retrieval_top_k=3,
+            max_input_tokens=12000,
+            max_output_tokens=2000,
+            max_estimated_cost_usd=0.10
+        )
     )
 
+    print("\nAgent Result:")
     print(result.model_dump_json(indent=2))
 
 

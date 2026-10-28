@@ -3,7 +3,7 @@ import json
 
 from pydantic import BaseModel, ValidationError, field_validator
 
-from agent.llm import client, MODEL
+from agent.llm import client, MODEL, record_usage
 from agent.schemas import Department, Priority, Intent, EmailInput
 
 
@@ -98,6 +98,9 @@ def classify_email(email: EmailInput) -> EmailClassification:
         max_tokens=1000,
         temperature=0,
     )
+
+    # Record token usage before validating the model output.
+    record_usage(response)
 
     message = response.choices[0].message
     content = message.content or ""
