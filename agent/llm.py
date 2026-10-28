@@ -30,6 +30,7 @@ _usage_context = ContextVar("llm_usage_context", default=None)
 
 def start_usage_tracking():
     """Start a new usage-tracking context for one email."""
+
     return _usage_context.set({
         "input_tokens": 0,
         "output_tokens": 0,
@@ -41,6 +42,7 @@ def start_usage_tracking():
 
 def get_usage() -> dict:
     """Return accumulated usage for the current context."""
+
     usage = _usage_context.get()
 
     if usage is None:
@@ -53,26 +55,31 @@ def get_usage() -> dict:
     return {
         "input_tokens": (
             usage["input_tokens"]
-            if usage["usage_available"] else None
+            if usage["usage_available"]
+            else None
         ),
         "output_tokens": (
             usage["output_tokens"]
-            if usage["usage_available"] else None
+            if usage["usage_available"]
+            else None
         ),
         "estimated_cost_usd": (
             usage["estimated_cost_usd"]
-            if usage["cost_available"] else None
+            if usage["cost_available"]
+            else None
         ),
     }
 
 
 def stop_usage_tracking(token):
     """Restore the previous usage-tracking context."""
+
     _usage_context.reset(token)
 
 
 def record_usage(response):
-    """Accumulate token counts and reported provider cost."""
+    """Accumulate token counts and provider-reported cost."""
+
     context = _usage_context.get()
 
     if context is None or response.usage is None:
@@ -92,7 +99,7 @@ def record_usage(response):
 
 
 def ask_llm(prompt: str) -> str:
-    """Send a prompt to OpenRouter and return the model response."""
+    """Send a prompt to OpenRouter and return a complete response."""
 
     response = client.chat.completions.create(
         model=MODEL,
@@ -108,21 +115,47 @@ def ask_llm(prompt: str) -> str:
         ],
         temperature=0,
         max_tokens=1000,
+        extra_body={
+            "reasoning": {
+                "enabled": False
+            }
+        },
     )
 
-    # Record usage without changing the return type.
+    # Record usage before validating the response.
     record_usage(response)
 
-    message = response.choices[0].message
+    if not response.choices:
+        raise ValueError("LLM returned no completion choices.")
+
+    choice = response.choices[0]
+    finish_reason = choice.finish_reason
+
+    # Reject truncated responses or provider errors.
+    if finish_reason != "stop":
+        print("Warning: LLM response did not finish normally.")
+        print("Model used:", response.model)
+        print("Finish reason:", finish_reason)
+        print("Usage:", response.usage)
+
+        raise ValueError(
+            f"LLM response did not finish normally: {finish_reason}"
+        )
+
+    message = choice.message
     answer = message.content or ""
 
     if not answer.strip():
         print("Warning: The model returned an empty answer.")
         print("Model used:", response.model)
-        print("Finish reason:", response.choices[0].finish_reason)
+        print("Finish reason:", finish_reason)
         print("Usage:", response.usage)
 
-    return answer
+        raise ValueError(
+            "The model returned an empty answer."
+        )
+
+    return answer.strip()
 
 
 if __name__ == "__main__":
@@ -136,7 +169,10 @@ if __name__ == "__main__":
 
         print("Model:", MODEL)
         print("Response:", result)
-        print("Usage:", get_usage())
+
+    except ValueError as exc:
+        print("LLM validation failed:", str(exc))
 
     finally:
+        print("Usage:", get_usage())
         stop_usage_tracking(token)

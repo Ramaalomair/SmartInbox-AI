@@ -4,6 +4,8 @@ import asyncio
 from agent.mock_tools import MockAgentTools
 from agent.orchestrator import process_email
 from agent.schemas import EmailInput, AgentConfig
+from agent.tools import bind_requester
+from agent.integrated_tools import IntegratedAgentTools
 
 
 async def main():
@@ -11,15 +13,17 @@ async def main():
 
     
     email = EmailInput(
-     email_id="TEST-POLICY",
-     sender="customer@example.com",
-     subject="Return policy question",
-     body="What is the standard return window for a product?",
-     language="en"
-    )
+    email_id="TEST-ORDER",
+    sender="sender26@example.com",
+    subject="Missing order",
+    body="My order ORD-1005 has not arrived. Can you check its status?",
+    language="en"
+)
 
 
-    tools = MockAgentTools()
+    tools = IntegratedAgentTools(
+    bind_requester(email.sender)
+)
 
     result = await process_email(
         email=email,
