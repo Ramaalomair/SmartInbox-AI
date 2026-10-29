@@ -1,0 +1,132 @@
+{
+  "generated_at_utc": "2026-10-28T23:14:36.754340+00:00",
+  "runner": "real_process_email",
+  "summary": {
+    "avg_requests": 2.0,
+    "avg_tokens": 1633.0,
+    "request_measurements": 1,
+    "token_measurements": 1,
+    "total_cases": 1,
+    "completed": 1,
+    "errors": 0,
+    "structural_passes": 1,
+    "approval_or_safe_handoff_rate": 1.0,
+    "structural_pass_rate": 1.0,
+    "accuracy_by_check_on_completed_cases": {
+      "email_id": 1.0,
+      "intent": 1.0,
+      "primary_department": 1.0,
+      "secondary_department": 1.0,
+      "priority": 1.0,
+      "required_tools": 1.0,
+      "approval_declared": 1.0
+    },
+    "behavior_cases_not_assessed": 1,
+    "total_latency_seconds": 8.208
+  },
+  "cases": [
+    {
+      "email_id": "E001",
+      "expected_intent": "order_status",
+      "expected_department": "customer_support",
+      "expected_secondary_department": null,
+      "expected_priority": "medium",
+      "required_tools": [
+        "lookup_order",
+        "search_company_knowledge"
+      ],
+      "expected_behavior": "grounded_draft_no_unverified_promise",
+      "passed_structural_checks": true,
+      "behavior_assessment": "not_assessed",
+      "error": null,
+      "checks": {
+        "email_id": true,
+        "intent": true,
+        "primary_department": true,
+        "secondary_department": true,
+        "priority": true,
+        "required_tools": true,
+        "approval_declared": true
+      },
+      "approval_or_safe_handoff": true,
+      "missing_tools": [],
+      "behavior_note": "Requires dedicated assertions or human review; label alone is not proof.",
+      "input_tokens": 1244,
+      "output_tokens": 389,
+      "total_tokens": 1633,
+      "actual_intent": "order_status",
+      "actual_department": "customer_support",
+      "actual_secondary_department": null,
+      "actual_priority": "medium",
+      "status": "draft_ready",
+      "tools_used": [
+        "search_company_knowledge",
+        "lookup_order"
+      ],
+      "security_flags": [],
+      "requires_approval": true,
+      "budget": {
+        "steps_used": 4,
+        "input_tokens": 1244,
+        "output_tokens": 389,
+        "estimated_cost_usd": 0.0
+      },
+      "agent_error": null,
+      "result": {
+        "email_id": "E001",
+        "intent": "order_status",
+        "primary_department": "customer_support",
+        "secondary_department": null,
+        "priority": "medium",
+        "status": "draft_ready",
+        "draft_subject": "Re: Where is order ORD-1001?",
+        "draft_body": "Hello,\n\nThank you for contacting us. I have checked the status of order ORD-1001, and it is currently marked as in transit. There is no confirmed delivery date available in our records at this time.\n\nIf you do not receive your order soon, please let us know and we will be happy to assist you further.\n\nBest regards,\nSmartInbox AI Support",
+        "tools_used": [
+          "search_company_knowledge",
+          "lookup_order"
+        ],
+        "evidence": [
+          {
+            "source_id": "customer_support_policy.md",
+            "excerpt": "# Order, Return and Refund Policy (POL-CS-01) Order status must be checked via lookup_order before making delivery-status claims. Do not promise a delivery date unless the order record explicitly contains a confirmed date. Customers may request a standard return within 14 calendar days of delivery, subject to condition review. A refund is not confirmed unless refund_status = completed in the authoritative order record. A pending refund is not proof that money was received. Request order ID if absent, rather than guessing. Escalate an order complaint to HIGH if the message alleges financial harm, repeated unsuccessful contact, or imminent time-sensitive consequences; otherwise MEDIUM for",
+            "score": 0.032787
+          },
+          {
+            "source_id": "access_control_policy.md",
+            "excerpt": "# Customer Record Access and Identity (POL-SEC-02) Before disclosing order, invoice, refund, or ticket details, the application must check the requester against `customer_email` (orders/tickets) or `authorized_contacts` (invoices). Access verification is enforced in code at the tool boundary, never solely by LLM instructions. If a record is not associated with the sender, do not reveal whether it exists or provide its details: ask the user to authenticate through an approved channel. A stated record ID does not confer authorization. An email From header alone is not trustworthy authentication in production; these are synthetic test identities for this local prototype. Do not reveal other",
+            "score": 0.032258
+          },
+          {
+            "source_id": "customer_support_policy.md",
+            "excerpt": "active order/refund complaints and LOW for general product queries.",
+            "score": 0.031498
+          }
+        ],
+        "security_flags": [],
+        "requires_approval": true,
+        "proposed_action_id": null,
+        "trace": [
+          {
+            "step": 2,
+            "tool": "search_company_knowledge",
+            "status": "success"
+          },
+          {
+            "step": 3,
+            "tool": "lookup_order",
+            "status": "success"
+          }
+        ],
+        "budget": {
+          "steps_used": 4,
+          "input_tokens": 1244,
+          "output_tokens": 389,
+          "estimated_cost_usd": 0.0
+        },
+        "error": null
+      },
+      "request_count": 2,
+      "latency_seconds": 8.208
+    }
+  ]
+}

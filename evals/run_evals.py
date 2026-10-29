@@ -101,7 +101,12 @@ def evaluate(case: EvalCase, result: AgentResult) -> dict[str, Any]:
     }
 
 
-def run_one(case: EvalCase, emails: dict[str, EmailInput], process_email: Any) -> dict[str, Any]:
+def run_one(
+    case: EvalCase,
+    emails: dict[str, EmailInput],
+    process_email: Any,
+    retrieval_method: str = "hybrid",
+) -> dict[str, Any]:
     row: dict[str, Any] = {
         "email_id": case.email_id,
         "expected_intent": case.expected_intent,
@@ -122,7 +127,9 @@ def run_one(case: EvalCase, emails: dict[str, EmailInput], process_email: Any) -
     start = time.perf_counter()
     usage_token = start_usage_tracking()
     try:
-        tools = IntegratedAgentTools(bind_requester(email.sender))
+        tools = IntegratedAgentTools(
+            bind_requester(email.sender), retrieval_method=retrieval_method
+        )
         raw_result = asyncio.run(process_email(email, tools))
         result = AgentResult.model_validate(raw_result)
         row.update(evaluate(case, result))
@@ -241,12 +248,19 @@ def save_reports(rows: list[dict[str, Any]], summary: dict[str, Any], outdir: Pa
     os.replace(temp, outdir / "results.csv")
 
 
-def load_previous(path: Path, case_ids: set[str]) -> dict[str, dict[str, Any]]:
+def load_previous(
+    path: Path, case_ids: set[str], expected_config: str
+) -> dict[str, dict[str, Any]]:
     if not path.is_file():
         raise FileNotFoundError(f"Resume report not found: {path}")
     report = json.loads(path.read_text(encoding="utf-8"))
     if report.get("runner") != "real_process_email" or not isinstance(report.get("cases"), list):
         raise ValueError("Invalid B4 report format for resume")
+    saved_config = report.get("summary", {}).get("config")
+    if saved_config != expected_config:
+        raise ValueError(
+            f"Report config={saved_config!r}, requested config={expected_config!r}; refusing to mix runs"
+        )
     previous = {}
     for row in report["cases"]:
         case_id = row.get("email_id")
@@ -286,10 +300,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="B4 SmartInbox AI evaluation runner")
     parser.add_argument("--email-id", action="append", help="Evaluate selected email ID(s)")
     parser.add_argument("--repeats", type=int, default=1, help="Independent attempts per email (e.g., 3 for pass^3)")
+    parser.add_argument("--config", choices=["A", "B"], required=True, help="A = TF-IDF; B = Hybrid RRF")
     parser.add_argument("--outdir", type=Path, default=REPORT_DIR)
     parser.add_argument("--resume", action="store_true", help="Reuse successful cases from outdir/results.json")
     parser.add_argument("--resume-from", type=Path, help="Reuse successful cases from a specified JSON report")
     args = parser.parse_args()
+    retrieval_method = {"A": "tfidf", "B": "hybrid"}[args.config]
+
+    def report_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+        result = summarize_repeated(rows, args.repeats) if args.repeats > 1 else summarize(rows)
+        return {**result, "config": args.config, "retrieval_method": retrieval_method}
     if args.repeats < 1:
         parser.error("--repeats must be at least 1")
 
@@ -321,6 +341,11 @@ def main() -> int:
             report = json.loads(resume_path.read_text(encoding="utf-8"))
             if report.get("runner") != "real_process_email" or not isinstance(report.get("cases"), list):
                 parser.error("Invalid evaluation report format")
+            saved_config = report.get("summary", {}).get("config")
+            if saved_config != args.config:
+                parser.error(
+                    f"Report config={saved_config!r}, requested config={args.config!r}; refusing to mix runs"
+                )
             previous_k = report.get("summary", {}).get("k")
             if previous_k != args.repeats:
                 parser.error(f"Report repeats={previous_k!r}, requested repeats={args.repeats}; refusing to mix runs")
@@ -350,21 +375,25 @@ def main() -> int:
                     print(f"[{i}/{len(cases)}] {case.email_id} attempt {repeat_index}/{args.repeats} REUSED", flush=True)
                 else:
                     print(f"[{i}/{len(cases)}] {case.email_id} attempt {repeat_index}/{args.repeats}", flush=True)
-                    row = run_one(case, emails, process_email)
+                    row = run_one(case, emails, process_email, retrieval_method=retrieval_method)
                     row["repeat_index"] = repeat_index
                 rows.append(row)
-                save_reports(rows, summarize_repeated(rows, args.repeats), args.outdir)
+                save_reports(rows, report_summary(rows), args.outdir)
                 if is_execution_error(row):
                     print(f"ERROR in {case.email_id} attempt {repeat_index}: {row.get('error') or row.get('agent_error')}", file=sys.stderr)
-                    print("Checkpoint saved. Retry later with --repeats 3 --resume.", file=sys.stderr)
+                    print(
+                        f"Checkpoint saved. Retry later with --config {args.config} "
+                        f"--repeats {args.repeats} --outdir {args.outdir} --resume.",
+                        file=sys.stderr,
+                    )
                     return 2
-        summary = summarize_repeated(rows, args.repeats)
+        summary = report_summary(rows)
         print(json.dumps(summary, indent=2, ensure_ascii=False))
         print(f"\nReports: {args.outdir / 'results.json'} and {args.outdir / 'results.csv'}")
         return 0 if summary["cases_completed_all_repeats"] == len(cases) else 2
 
     resume_path = args.resume_from or (args.outdir / "results.json" if args.resume else None)
-    previous = load_previous(resume_path, {c.email_id for c in cases}) if resume_path else {}
+    previous = load_previous(resume_path, {c.email_id for c in cases}, args.config) if resume_path else {}
     if previous:
         print(f"Reusing {len(previous)} successful cases from {resume_path}")
 
@@ -376,13 +405,13 @@ def main() -> int:
             print(f"[{i}/{len(cases)}] {case.email_id} ... REUSED", flush=True)
         else:
             print(f"[{i}/{len(cases)}] {case.email_id} ...", flush=True)
-            row = run_one(case, emails, process_email)
+            row = run_one(case, emails, process_email, retrieval_method=retrieval_method)
             outcome = "ERROR" if is_execution_error(row) else (
                 "PASS" if row["passed_structural_checks"] else "FAIL"
             )
             print(f"  {outcome} ({row.get('latency_seconds', 0):.2f}s)", flush=True)
         rows.append(row)
-        save_reports(rows, summarize(rows), args.outdir)  # checkpoint after every case
+        save_reports(rows, report_summary(rows), args.outdir)  # checkpoint after every case
 
         # The orchestrator currently masks HTTP 429 as orchestration_failed.
         # Stop on any orchestration failure to avoid wasting remaining API calls.
@@ -394,7 +423,7 @@ def main() -> int:
             stopped = True
             break
 
-    summary = summarize(rows)
+    summary = report_summary(rows)
     print("\n" + json.dumps(summary, indent=2, ensure_ascii=False))
     print(f"\nReports: {args.outdir / 'results.json'} and {args.outdir / 'results.csv'}")
     if stopped:
