@@ -1,157 +1,111 @@
 # SmartInbox AI
 
-> SmartInbox AI helps customer support, finance, HR, and technical teams triage a shared inbox: it classifies incoming emails, routes them by department and priority, consults synthetic records and company policies, and prepares draft replies for human review before approved local saving.
+> SmartInbox AI helps support teams classify and route incoming emails, retrieve relevant information, and prepare replies for human approval.
 
 **Track:** 2 · Your harness  
 **Team:** Remas Alsubaie, Rama Alomair  
-**Program Repository:** [SDAIA Academy – Agentic AI](https://github.com/SDAIAAcademy/agentic-ai)  
-**Model(s):** `nvidia/nemotron-3.5-super-vl:free` via OpenRouter (OpenAI-compatible API). This is the model used for the reported final evaluation; the evaluation below documents measured performance, not a comparative model benchmark.
+**Model(s):** `nvidia/nemotron-3.5-super-vl:free` via OpenRouter, used in both A/B configurations to compare retrieval methods under the same model.
 
 ## Problem
 
-Companies receiving HR, finance, technical support, and customer inquiries through a shared inbox often classify and route messages manually. This slows responses, makes prioritization inconsistent, and risks replies that assert unverified facts—for example, claiming a refund was completed without checking the order. Incoming emails and retrieved documents can also contain prompt-injection attempts.
-
-SmartInbox AI uses a fictional company, **NovaTech**, and synthetic email, order, invoice, and ticket records. The agent classifies each email, selects departments and priority, performs relevant lookups and knowledge retrieval, and attempts to prepare a grounded draft. The intended completion criteria are correct routing, verifiable claims, appropriate escalation, and no unauthorized write. These criteria are **not all fully established** by the structural evaluation reported below.
+Teams handling shared inboxes receive customer support, finance, HR, and technical requests. Manually classifying emails, assigning priorities, and finding the right information takes time and can lead to inconsistent responses. Replies may also include unverified claims or expose information to unauthorized requesters. SmartInbox AI classifies each email, routes it to the appropriate department, retrieves relevant company policies and authorized records, and prepares a draft for human review. The project uses synthetic emails and company data. Success means accurate classification and routing, correct tool usage, and adherence to the approval requirement.
 
 ## How to run
 
-From the project root, activate the project's Python environment and install the dependencies required by your local setup. Configure `OPENROUTER_API_KEY` in `.env` (see `.env.example` if present). Approval-token configuration may also be required for approved writes; consult `mcp_server/approval.py` and the project's configuration before enabling that flow.
-
-**Run the existing evaluation suite:**
+Set `OPENROUTER_API_KEY` in `.env` and run the following commands from the project root:
 
 ```bash
-python -m evals.run_evals --outdir evals/reports/final_evaluation
+uv sync
+uv run python -m evals.run_evals --config A --repeats 2 --outdir evals/reports/config_A
+uv run python -m evals.run_evals --config B --repeats 2 --outdir evals/reports/config_B
 ```
-
-**Run the security, approval, and access-control tests:**
-
-```bash
-python -m pytest tests/test_access_control.py tests/test_approval.py evals/test_security.py -v
-```
-
-**Run retrieval evaluation:**
-
-```bash
-python -m evals.evaluate_retrieval
-```
-
-**User interface:** `app.py` contains the application UI and an agent execution path. Confirm its framework and entry-point command in the source before publishing a launch command; the earlier `uv run smartinbox.py ...` commands were placeholders and do not match the current file tree.
 
 ## Design across the ladder
 
 | Rung | Your decision | Why |
 |---|---|---|
-| Prompt | `AGENTS.md` documents agent behavior; `agent/classification.py` defines structured intent, department, and priority classification and includes instructions to treat email content as untrusted. | Consistent labels and a clear trust boundary for incoming messages. |
-| Context | Markdown knowledge base with **8 documents**; retrieval components include `agent/retrieval.py`, `agent/hybrid_retrieval.py`, and `agent/rag.py`. Configured retrieval top-k is 3; the agent has a bounded context and output budget. | Retrieve relevant policy context without supplying the entire knowledge base to every request. |
-| Harness | `agent/orchestrator.py` coordinates classification, tool use, draft generation, and status handling. `agent/schemas.py` sets limits, including `max_steps=6`, `max_input_tokens=12000`, `max_output_tokens=6000`, and `max_estimated_cost_usd=0.10` in the evaluated configuration. | Limit cost and execution; stop safely when the budget or workflow cannot proceed. |
-| Loop | A bounded per-email orchestration flow rather than an open-ended autonomous loop. | Email triage has a defined scope and should not continue indefinitely. |
-| Graph | The current implementation is code-orchestrated; no dedicated graph framework is evidenced in the current file structure. | Keeps the prototype simpler while supporting explicit checks and handoffs. |
+| Prompt | Structured classification and drafting instructions | Consistent intent, routing, and draft outputs. |
+| Context | Company knowledge retrieval using TF-IDF (A) or Hybrid RRF (B) | Supply relevant policy context for each email. |
+| Harness | Orchestrator, tool access controls, approval checks, and execution budgets | Control tool use and prevent unauthorized actions. |
+| Loop | Bounded processing flow for each email | Each request has a defined endpoint. |
+| Graph | Code-based workflow rather than a separate graph framework | The workflow is handled by the existing orchestrator. |
 
 ```text
-Incoming email (synthetic CSV / UI)
-              |
-              v
-      App / Agent Harness ----------------> Human reviewer
-      (orchestrator, budgets,                | approve / reject
-       classification, audit)                |
-              |                              v
-      +-------+--------+               Approval token
-      |                |                     |
-      v                v                     v
-Knowledge retrieval   Record lookups     MCP save_draft_mcp
-(8 Markdown docs)     (synthetic CSVs)   (server + service)
-      |                |                     |
-      +-------+--------+                     v
-              |                       Local approved drafts
-              v                       and audit log
-        Grounded draft
+                 Incoming email
+                       |
+                       v
+                Agent / Harness
+                       |
+                       v
+                  LLM (OpenRouter)
+                       |
+             Classification & routing
+                       |
+             +---------+---------+
+             |                   |
+             v                   v
+      Knowledge retrieval   Record lookup tools
+      (company policies)    (synthetic records)
+             |                   |
+             +---------+---------+
+                       |
+                       v
+                  Draft reply
+                       |
+                       v
+                 Human approval
+                       |
+                       v
+              MCP-approved local save
 ```
 
 ## Tools
 
-| Tool / component | Read / write | Over MCP? | Approval? | Trifecta leg (private / untrusted / egress) |
+| Tool | Read / write | Over MCP? | Approval? | Trifecta leg (private / untrusted / egress) |
 |---|---|---|---|---|
-| Knowledge retrieval (`agent/retrieval.py`, `agent/hybrid_retrieval.py`) | Read | Not established from current evidence | No write approval | Untrusted retrieved content |
-| Record lookup components (`agent/integrated_tools.py`, `agent/tool_execution.py`) | Read | Verify individual lookup transport in code | Access control required; no write approval | Private synthetic records |
-| Classification and routing (`agent/classification.py`, `agent/tool_selection.py`) | Decision / read | No MCP requirement established | No | Untrusted email input |
-| `save_draft_mcp` (`mcp_server/server.py`) | Write, local | **Yes** | **Yes**; approval token verified by the service | Limited local write / egress-like action |
-| Audit logging (`mcp_server/service.py`) | Write, local | Service-side | System-controlled | Audit trail |
-
-The original template's `export_records` decoy is **not listed as an implemented tool** here because the provided source listing does not establish its existence.
+| `search_company_knowledge` | Read | No | No | Untrusted retrieved content |
+| `lookup_order` | Read | No | Access-controlled | Private synthetic records |
+| `lookup_invoice` | Read | No | Access-controlled | Private synthetic records |
+| `lookup_ticket` | Read | No | Access-controlled | Private synthetic records |
+| `save_draft_mcp` | Write | Yes | Yes | Local write action |
 
 ## Evaluation
 
-**Suite:** 34 synthetic email cases in `evals/eval_cases.json`, evaluated with `evals/run_evals.py`. The suite compares the agent's structured outputs against predefined expectations for email identification, intent, primary and secondary department routing, priority, required tools, and approval declaration.
+**Suite:** 34 synthetic email tasks in `evals/eval_cases.json`, covering support, finance, HR, technical requests, and security-sensitive cases; 2 repetitions per task (68 attempts per configuration). **Graders:** structural checks for email ID, intent, primary and secondary departments, priority, required tools, and approval declaration.
 
-**Evaluation method:** One reported set of results covering all 34 cases. The assessment uses structural checks; `pass^k`, average model requests, and average token usage were not measured. These results do not represent an independent semantic assessment of generated replies.
+**Configurations:** A = TF-IDF retrieval (baseline); B = Hybrid RRF retrieval (TF-IDF + multilingual E5). Retrieval method is the one configuration change.
 
-### Agent evaluation results
-
-| Metric | Result |
-|---|---:|
-| Total cases | 34 |
-| Structurally passed | 26 |
-| Structurally failed | 8 |
-| **Structural pass rate** | **76.47%** |
-| Execution errors | 0 |
-| pass^k | Not measured |
-| Average requests | Not measured |
-| Average tokens | Not measured |
-
-| Structural check | Correct cases | Accuracy |
-|---|---:|---:|
-| Email ID | 34/34 | 100.00% |
-| Intent classification | 31/34 | 91.18% |
-| Primary department | 32/34 | 94.12% |
-| Secondary department | 33/34 | 97.06% |
-| Priority | 30/34 | 88.24% |
-| Required tools | 31/34 | 91.18% |
-| Approval declaration | 30/34 | 88.24% |
-
-The evaluation report records **330.457 seconds** of cumulative case latency. Its supplementary `approval_or_safe_handoff_rate` is **100%**, but that diagnostic combines approval declarations with some safe manual-review handoffs and does not establish that every action was approved.
-
-**Evaluation scope:** `behavior_cases_not_assessed = 34`. The structural runner does not independently verify the factual grounding of every draft, semantic correctness of refusals, or full end-to-end behavior. These require additional behavioral evaluation.
-
-### Retrieval evaluation
-
-**Suite:** 16 retrieval cases in `evals/retrieval_cases.json`, evaluated with `python -m evals.evaluate_retrieval`. `Hit@3` measures whether a relevant result appears in the first three results; `MRR@3` rewards higher ranking of the first relevant result.
-
-| Retrieval method | Hit@3 | MRR@3 | Cases with hit |
-|---|---:|---:|---:|
-| TF-IDF | 68.75% | 0.6146 | 11/16 |
-| Semantic E5 | 93.75% | 0.8646 | 15/16 |
-| Hybrid RRF | **93.75%** | **0.9062** | **15/16** |
-
-Hybrid RRF has the highest measured MRR@3, while Semantic E5 and Hybrid RRF tie on Hit@3. Case `R002` failed for all three retrieval methods. These are retrieval-only metrics, separate from the 34-email structural evaluation.
+| Config | pass rate | pass^k (k = 2) | avg requests | avg tokens |
+|---|---:|---:|---:|---:|
+| A | 69.12% | 67.65% | 1.79 | 1,738.56 |
+| B | **75.00%** | **73.53%** | 1.88 | 1,767.34 |
 
 ### Error analysis
 
-The agent passed **26 of 34** structural cases. The remaining **8 cases** failed at least one check. Error counts by criterion overlap because a single email can have multiple mismatches.
+| Root cause | Count (A) | Count (B) | Example task | Fix tried |
+|---|---:|---:|---|---|
+| Incorrect intent classification | 4 | 6 | E004, E024 | Hybrid RRF retrieval |
+| Incorrect primary department routing | 4 | 4 | E024 | Hybrid RRF retrieval |
+| Incorrect secondary department routing | 2 | 2 | E031 | Hybrid RRF retrieval |
+| Incorrect priority classification | 7 | 7 | E012, E013 | Hybrid RRF retrieval |
+| Missing required tools | 10 | 6 | E018, E033 | Hybrid RRF retrieval |
+| Incorrect approval declaration | 14 | 8 | E019, E033 | Hybrid RRF retrieval |
 
-| Error category | Mismatches | Suggested improvement |
-|---|---:|---|
-| Intent classification | 3 | Refine distinctions between overlapping inquiry intents. |
-| Primary department routing | 2 | Clarify routing for ambiguous or multi-department requests. |
-| Secondary department routing | 1 | Improve secondary-department selection criteria. |
-| Priority classification | 4 | Strengthen handling of urgency, impact, and escalation. |
-| Required tool selection | 3 | Tighten tool-selection rules and check expected lookups. |
-| Approval declaration | 4 | Make approval requirements more consistent in structured outputs. |
+*Counts are failed checks across 68 attempts per configuration; one attempt can fail multiple checks.*
 
-**Next evaluation steps:** Add semantic/behavioral grading for grounded drafts, tool execution, and safe refusals; manually review high-risk cases; and test on an independent holdout set.
+**A → B:** E018, E019, and E033 changed from failing to passing both repetitions. E004 changed from passing to failing. Next, we would improve intent classification and investigate persistent routing and priority errors.
 
 ## Security note
 
-- **Trifecta:** The agent receives untrusted email content and retrieved policy text, can query private-like synthetic order/invoice/ticket records, and has a restricted local write path through the MCP service. These capabilities intersect at the orchestration layer.
-- **Attack tried:** The project contains injection fixtures (`evals/injection_case.json`, `evals/untrusted_kb_injection.md`) and tests for unauthorized lookup, indistinguishable unauthorized/unknown record responses, data minimization, unapproved writes, tampered payloads, prompt injection, cross-customer record access, and permission overrides (`evals/test_security.py`).
-- **Defence:** Structured routing and untrusted-input instructions are prompt-level controls. The separate MCP approval service (`mcp_server/approval.py`, `mcp_server/service.py`) provides code-level approval-token verification for local draft writes; access-control tests exercise record boundaries.
-- **Observed security result:** The provided Pytest JUnit XML reports **40/40 tests passing**, **0 failures**, **0 errors**, **0 skipped**, in **46.214 seconds**. Breakdown: **13** access-control tests (`tests/test_access_control.py`), **16** approval/MCP tests (`tests/test_approval.py`), and **11** security/injection tests (`evals/test_security.py`). This demonstrates the listed checks passed in that run, not comprehensive security assurance. No unprotected-before/after attack comparison has been established.
-- **Residual risk:** Model-generated classifications and drafts can still be incorrect or misleading. The structural evaluation does not establish resistance to every prompt injection or verify every draft's grounding. Human review remains necessary.
-- **Governance:** The prototype uses synthetic data. Production would require privacy and data-minimization controls, access logging, explicit authorization, retention rules, human oversight, and a review of provider-side data processing and applicable Saudi PDPL / SDAIA guidance.
+- **Trifecta:** Untrusted incoming emails and retrieved text meet access to synthetic private records and a restricted local write tool in the agent workflow.
+- **Attack tried:** Prompt-injection and unauthorized-access cases tested whether the agent would perform unauthorized lookups, reveal records, or write without approval. The security suite passed 40/40 tests; behavior without defenses was not separately measured.
+- **Defence:** Tool-level access checks and code-enforced approval verification for local draft saving, alongside instructions to treat incoming content as untrusted.
+- **Residual risk:** Incorrect classification, unsupported draft statements, and new injection patterns remain possible.
+- **Governance:** The prototype uses synthetic data. Production use would require data minimization, human oversight, and compliance review under applicable Saudi PDPL and SDAIA principles.
 
 ## Limitations and next steps
 
-- No confirmed live email-provider integration or real message sending; the documented write path saves approved drafts locally.
-- Evaluations use synthetic NovaTech data and a small 34-case suite; the results are not production accuracy estimates.
-- All **34 expected behaviors remain unassessed by the structural runner**; passing the 40 dedicated tests does not substitute for full per-email semantic grading. Add behavioral and end-to-end testing, especially for security-sensitive cases.
-- UI entry point and installation instructions should be verified against `app.py` and the project's dependency files before release.
-- Authentication, monitoring, rate-limit handling, production secrets management, and data-governance controls need deployment-level review.
+- The A/B evaluation covers 34 synthetic tasks, not production email traffic.
+- Graders check structural outcomes; they do not independently score draft quality or factual grounding.
+- The system does not establish live email sending; approved drafts are saved locally.
+- Next steps include improving persistent classification and routing errors, adding draft-quality checks, and testing with a broader dataset.
