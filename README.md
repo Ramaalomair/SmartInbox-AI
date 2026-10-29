@@ -56,7 +56,7 @@ uv run python -m evals.run_evals --config B --repeats 2 --outdir evals/reports/c
                  Human approval
                        |
                        v
-              MCP-approved local save
+       Approval-checked local save via MCP
 ```
 
 ## Tools
@@ -89,7 +89,7 @@ uv run python -m evals.run_evals --config B --repeats 2 --outdir evals/reports/c
 | Incorrect secondary department routing | 2 | 2 | E031 | Hybrid RRF retrieval |
 | Incorrect priority classification | 7 | 7 | E012, E013 | Hybrid RRF retrieval |
 | Missing required tools | 10 | 6 | E018, E033 | Hybrid RRF retrieval |
-| Incorrect approval declaration | 14 | 8 | E019, E033 | Hybrid RRF retrieval |
+| Approval declaration check failure | 14 | 8 | E019, E033 | Hybrid RRF retrieval |
 
 *Counts are failed checks across 68 attempts per configuration; one attempt can fail multiple checks.*
 
