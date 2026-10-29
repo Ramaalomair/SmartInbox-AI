@@ -4,7 +4,7 @@
 > SmartInbox AI helps support teams classify and route incoming emails, retrieve relevant information, and prepare replies for human approval.
 
 **Track:** 2 · Your harness  
-**Team:** Remas Alsubaie, Rama Alomair  
+**Team:** Remas Alsubaie 
 **Course:** [SDAIA Academy — Agentic AI](https://github.com/SDAIAAcademy/agentic-ai)  
 **Model(s):** `nvidia/nemotron-3.5-super-vl:free` via OpenRouter, used in both A/B configurations to compare retrieval methods under the same model.
 
