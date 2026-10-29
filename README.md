@@ -56,7 +56,7 @@ uv run python -m evals.run_evals --config B --repeats 2 --outdir evals/reports/c
                  Human approval
                        |
                        v
-       Approval-checked local save via MCP
+              Approval-checked local save via MCP
 ```
 
 ## Tools
@@ -93,7 +93,9 @@ uv run python -m evals.run_evals --config B --repeats 2 --outdir evals/reports/c
 
 *Counts are failed checks across 68 attempts per configuration; one attempt can fail multiple checks.*
 
-**A → B:** E018, E019, and E033 changed from failing to passing both repetitions. E004 changed from passing to failing. Next, we would improve intent classification and investigate persistent routing and priority errors.
+**What flipped between A and B:** Switching from TF-IDF to Hybrid RRF improved three tasks (E018, E019, and E033), which changed from failing to passing both repetitions. These improvements were related to required tool usage and approval declaration checks. However, E004 regressed from passing to failing due to incorrect intent classification. Overall, Configuration B increased pass² from 67.65% to 73.53%, although intent classification errors increased from 4 to 6 attempts.
+
+**What we would change next:** Improve intent classification for ambiguous requests, refine priority and department-routing rules, and strengthen validation of required tool usage and approval declarations. Then rerun the A/B evaluation to measure the impact.
 
 ## Security note
 
