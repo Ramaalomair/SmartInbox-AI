@@ -98,7 +98,7 @@ def load_emails() -> list[EmailInput]:
 def load_labels() -> dict[str, dict]:
     """Load evaluation labels for mock mode only."""
 
-    path = ROOT / "evals" / "eval_cases.json"
+    path = ROOT / "evals" / "cases" / "eval_cases.json"
 
     if not path.exists():
         return {}
